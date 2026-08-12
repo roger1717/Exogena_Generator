@@ -1,0 +1,17 @@
+# Dependencias de Node (se reinstalan con "npm install")
+node_modules/
+
+# Base de datos local con los contactos (no subir a repositorios publicos)
+data/leads.db
+
+# Variables de entorno: claves de correo y del panel privado.
+# NUNCA subir. La plantilla sin valores (.env.example) si se sube.
+.env
+.env.local
+!.env.example
+
+# Archivos del sistema
+.DS_Store
+
+# Configuracion local de Vercel CLI (se genera al hacer "vercel" o "vercel link")
+.vercel
