@@ -1,0 +1,29 @@
+# ============================================================================
+# DOCKER-COMPOSE.YML
+# OBJETIVO: Orquestar los contenedores Docker necesarios para el desarrollo.
+#           Levanta PostgreSQL en un contenedor independiente, permitiendo 
+#           que la aplicación se ejecute en local pero conectándose a una 
+#           base de datos aislada y reproducible.
+# ============================================================================
+
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: exogena_postgres
+    environment:
+      POSTGRES_USER: exogena_user
+      POSTGRES_PASSWORD: exogena_password
+      POSTGRES_DB: exogena_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U exogena_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
