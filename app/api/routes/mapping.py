@@ -68,34 +68,29 @@ def get_rule_by_id(
 
 @router.post("/", response_model=MappingRuleResponse, status_code=status.HTTP_201_CREATED)
 def create_rule(
-    rule_data: MappingRuleCreate, 
+    rule_data: MappingRuleCreate,
     db: Session = Depends(get_db)
 ):
-    """
-    Crear una nueva regla de mapeo.
+    """Crear una nueva regla de mapeo (o actualizar si ya existe)."""
     
-    Args:
-        rule_data: Datos de la nueva regla (validados por Pydantic)
-        db: Sesión de base de datos
-    
-    Returns:
-        La regla creada
-    
-    Raises:
-        HTTPException 400: Si ya existe una regla con el mismo PUC
-    """
-    # Verificar si ya existe una regla con ese PUC
+    # Buscar si ya existe
     existing_rule = db.query(MappingRule).filter(
         MappingRule.puc_code == rule_data.puc_code
     ).first()
     
     if existing_rule:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Ya existe una regla para el PUC {rule_data.puc_code}"
-        )
+        # Actualizar la regla existente
+        existing_rule.puc_name = rule_data.puc_name
+        existing_rule.exogena_format = rule_data.exogena_format
+        existing_rule.exogena_concept = rule_data.exogena_concept
+        existing_rule.exogena_concept_name = rule_data.exogena_concept_name
+        
+        db.commit()
+        db.refresh(existing_rule)
+        
+        return existing_rule
     
-    # Crear la nueva regla
+    # Crear nueva regla
     new_rule = MappingRule(
         puc_code=rule_data.puc_code,
         puc_name=rule_data.puc_name,
@@ -104,10 +99,9 @@ def create_rule(
         exogena_concept_name=rule_data.exogena_concept_name
     )
     
-    # Guardar en la base de datos
     db.add(new_rule)
     db.commit()
-    db.refresh(new_rule)  # Recargar para obtener el ID generado
+    db.refresh(new_rule)
     
     return new_rule
 
