@@ -1,22 +1,22 @@
 # ============================================================================
 # API/ROUTES/EXOGENA.PY
 # OBJETIVO: Endpoints para procesamiento de información exógena.
-#           Incluye carga de CSV, análisis de columnas y procesamiento.
+#           Ahora con detección automática de columnas y sin column_mapping.
 # ============================================================================
 
 import json
 import shutil
 import uuid
 from pathlib import Path
-from typing import Optional
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.services.csv_processor import CSVProcessor
-from app.schemas.exogena import CSVUploadResponse, ProcessingResult
+from app.schemas.exogena import CSVUploadResponse
 
 router = APIRouter(prefix="/exogena", tags=["Procesamiento Exógena"])
 
@@ -24,20 +24,18 @@ router = APIRouter(prefix="/exogena", tags=["Procesamiento Exógena"])
 @router.post("/upload", response_model=CSVUploadResponse)
 async def upload_csv(
     file: UploadFile = File(...),
-    column_mapping: Optional[str] = None,  # JSON con mapeo manual (opcional)
     db: Session = Depends(get_db)
 ):
     """
     Sube un archivo CSV para procesamiento de información exógena.
     
-    Características:
-    - Detecta automáticamente las columnas del CSV
-    - Permite mapeo manual si se proporciona
+    **¡No necesita column_mapping!** El sistema detecta automáticamente las columnas.
     
-    Args:
-        file: Archivo CSV a procesar
-        column_mapping: JSON con mapeo manual de columnas (opcional)
-        db: Sesión de base de datos
+    El archivo debe contener al menos:
+    - Una columna con NIT/Identificación del tercero
+    - Una columna con el nombre del tercero
+    - Una columna numérica con el valor
+    - Una columna con el código PUC
     
     Returns:
         CSVUploadResponse con los resultados del procesamiento
@@ -65,25 +63,28 @@ async def upload_csv(
         with file_path.open("wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         
-        # 4. Parsear el mapeo manual si existe
-        mapping = json.loads(column_mapping) if column_mapping else None
-        
-        # 5. Procesar el archivo
-        processor = CSVProcessor(db, mapping)
+        # 4. Procesar el archivo (sin column_mapping, detección automática)
+        processor = CSVProcessor(db)
         processed_data, result = processor.process_file(str(file_path))
         
-        # 6. Guardar resultados en archivo JSON para consulta futura
+        # 5. Guardar resultados en archivo JSON para consulta futura
         output_file = output_dir / f"{file_id}_result.json"
         with output_file.open("w", encoding="utf-8") as f:
+            # Convertir datetime a string para JSON
+            result_dict = result.model_dump()
+            # Asegurar que timestamp sea string
+            if 'timestamp' in result_dict and isinstance(result_dict['timestamp'], datetime):
+                result_dict['timestamp'] = result_dict['timestamp'].isoformat()
+            
             json.dump({
                 "file_id": file_id,
                 "filename": file.filename,
-                "result": result.model_dump(),
+                "result": result_dict,
                 "data": processed_data,
-                "mapping_used": mapping or "auto_detected"
+                "mapping_used": "auto_detected"
             }, f, ensure_ascii=False, indent=2)
         
-        # 7. Retornar respuesta
+        # 6. Retornar respuesta
         return CSVUploadResponse(
             message="Archivo procesado exitosamente",
             file_id=file_id,
@@ -117,23 +118,16 @@ async def analyze_csv(
     """
     Analiza un archivo CSV y sugiere qué columnas usar para cada campo.
     
-    Útil para que el usuario confirme el mapeo antes de procesar.
-    
-    Args:
-        file: Archivo CSV a analizar
-        db: Sesión de base de datos
-    
-    Returns:
-        Sugerencias de mapeo de columnas
+    Útil para verificar qué detectó el sistema automáticamente.
     """
-    # 1. Validar que el archivo es CSV
+    # Validar que el archivo es CSV
     if not file.filename.endswith('.csv'):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="El archivo debe ser de tipo CSV"
         )
     
-    # 2. Guardar archivo temporalmente
+    # Guardar archivo temporalmente
     upload_dir = Path("uploads")
     upload_dir.mkdir(exist_ok=True)
     
@@ -144,11 +138,11 @@ async def analyze_csv(
         with file_path.open("wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         
-        # 3. Analizar el archivo
+        # Analizar el archivo
         processor = CSVProcessor(db)
         suggestions = processor.get_column_suggestions(str(file_path))
         
-        # 4. Limpiar archivo temporal
+        # Limpiar archivo temporal
         file_path.unlink()
         
         return {
@@ -165,20 +159,12 @@ async def analyze_csv(
             detail=f"Error al analizar el archivo: {str(e)}"
         )
 
+
 @router.get("/results/{file_id}")
-async def get_processing_results(
-    file_id: str
-):
+async def get_processing_results(file_id: str):
     """
     Obtiene los resultados de procesamiento de un archivo específico.
-    
-    Args:
-        file_id: ID del archivo generado en la carga
-        
-    Returns:
-        Resultados del procesamiento
     """
-    import json
     output_dir = Path("outputs")
     output_file = output_dir / f"{file_id}_result.json"
     
@@ -191,37 +177,31 @@ async def get_processing_results(
     with output_file.open("r", encoding="utf-8") as f:
         return json.load(f)
 
+
 @router.get("/sample")
-async def generate_sample_csv(
-    db: Session = Depends(get_db)
-):
+async def generate_sample_csv(db: Session = Depends(get_db)):
     """
     Genera un archivo CSV de ejemplo para pruebas.
-    
-    Returns:
-        Información del archivo generado
     """
     processor = CSVProcessor(db)
     file_path = processor.generate_sample_csv()
     
     return {
         "message": "Archivo de ejemplo generado exitosamente",
-        "file_path": file_path,
-        "download_url": f"/download-sample"
+        "file_path": file_path
     }
+
 
 @router.get("/download-sample")
 async def download_sample_csv():
     """
-    Descarga el archivo CSV de ejemplo.
+    Descarga el archivo CSV .
     """
-    from fastapi.responses import FileResponse
-    
     file_path = Path("uploads/sample_data.csv")
     if not file_path.exists():
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Archivo de ejemplo no encontrado"
+            detail="Archivo de ejemplo no encontrado. Ejecuta primero GET /exogena/sample"
         )
     
     return FileResponse(
@@ -230,33 +210,59 @@ async def download_sample_csv():
         media_type="text/csv"
     )
 
-@router.post("/analyze")
-async def analyze_csv(
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db)
-):
+@router.get("/download-excel/{file_id}")
+async def download_excel(file_id: str, db: Session = Depends(get_db)):
     """
-    Analiza un archivo CSV y sugiere qué columnas usar para cada campo.
-    Útil para que el usuario confirme el mapeo antes de procesar.
+    Descarga un archivo Excel con el detalle y resumen de los datos procesados.
     """
-    # Guardar archivo temporal
-    upload_dir = Path("uploads")
-    upload_dir.mkdir(exist_ok=True)
+    # Buscar el resultado guardado
+    output_dir = Path("outputs")
+    result_file = output_dir / f"{file_id}_result.json"
+    if not result_file.exists():
+        raise HTTPException(status_code=404, detail="Resultados no encontrados")
     
-    file_id = str(uuid.uuid4())
-    file_path = upload_dir / f"{file_id}_{file.filename}"
+    with result_file.open("r", encoding="utf-8") as f:
+        data = json.load(f)
     
-    with file_path.open("wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    processed_data = data.get("data", [])
+    if not processed_data:
+        raise HTTPException(status_code=404, detail="No hay datos para generar el Excel")
     
-    # Analizar
+    # Generar Excel
     processor = CSVProcessor(db)
-    suggestions = processor.get_column_suggestions(str(file_path))
+    excel_path = processor.generate_excel(processed_data, file_id)
     
-    # Limpiar archivo temporal
-    file_path.unlink()
+    return FileResponse(
+        path=excel_path,
+        filename=f"exogena_{file_id}.xlsx",
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+@router.get("/download-xml/{file_id}")
+async def download_xml(file_id: str, format_code: str = "1001", db: Session = Depends(get_db)):
+    """
+    Descarga un archivo XML para la DIAN en el formato especificado.
+    Por defecto genera el formato 1001.
+    """
+    # Buscar el resultado guardado
+    output_dir = Path("outputs")
+    result_file = output_dir / f"{file_id}_result.json"
+    if not result_file.exists():
+        raise HTTPException(status_code=404, detail="Resultados no encontrados")
     
-    return {
-        "file_id": file_id,
-        "suggestions": suggestions
-    }
+    with result_file.open("r", encoding="utf-8") as f:
+        data = json.load(f)
+    
+    processed_data = data.get("data", [])
+    if not processed_data:
+        raise HTTPException(status_code=404, detail="No hay datos para generar el XML")
+    
+    # Generar XML
+    processor = CSVProcessor(db)
+    xml_path = processor.generate_xml(processed_data, file_id, format_code)
+    
+    return FileResponse(
+        path=xml_path,
+        filename=f"exogena_{format_code}_{file_id}.xml",
+        media_type="application/xml"
+    )

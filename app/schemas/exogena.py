@@ -5,7 +5,7 @@
 #           y respuestas de la API.
 # ============================================================================
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 
@@ -31,6 +31,15 @@ class ProcessingResult(BaseModel):
     error_rows: int = Field(..., description="Filas con errores")
     errors: List[Dict[str, Any]] = Field([], description="Lista de errores encontrados")
     timestamp: datetime = Field(default_factory=datetime.now, description="Fecha y hora del procesamiento")
+    
+    model_config = ConfigDict(
+        from_attributes=True,
+        # Esto asegura que datetime se serialice como string ISO
+        json_encoders={
+            datetime: lambda v: v.isoformat()
+        }
+    )
+
 
 class CSVUploadResponse(BaseModel):
     """
@@ -39,3 +48,10 @@ class CSVUploadResponse(BaseModel):
     message: str
     file_id: str
     result: ProcessingResult
+    
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_encoders={
+            datetime: lambda v: v.isoformat()
+        }
+    )
