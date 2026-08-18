@@ -84,3 +84,26 @@ Total de ventas: $Z
 Total de retenciones: $W
 
 Presentar este reporte a la DIAN en el formato que ellos exigen (generalmente XML)
+
+
+
+
+
+
+La DIAN define qué tipo de operaciones van en cada formato. La lógica es:
+
+Formato	Contenido	Ejemplo de PUCs
+1001	Pagos o abonos en cuenta a terceros	Arrendamientos, Honorarios, Servicios, Compras, Retenciones.
+1003	Retenciones de IVA	Retención de IVA.
+1007	Ingresos recibidos	Venta de mercancías, devoluciones, ingresos financieros.
+1008	Cuentas por cobrar	Clientes, empleados (deudores).
+1009	Cuentas por pagar	Proveedores, acreedores diversos.
+
+
+🧩 Tabla mental del contador (simplificada)
+PUC	Nombre	Naturaleza	Concepto DIAN	Formato DIAN
+236530	Retención Arrendamientos	Pasivo	5025	1001
+519530	Útiles y papelería	Gasto	5012	1001
+417005	Devoluciones en ventas	Ingreso negativo	8002	1007
+136505	Cuentas por cobrar empleados	Activo	9001	1008
+220505	Proveedores nacionales	Pasivo	9002	1009
