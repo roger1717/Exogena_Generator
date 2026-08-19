@@ -1,0 +1,191 @@
+# ============================================================================
+# .gitignore para PROYECTO_CONTABLE (Python + FastAPI + Node)
+# ============================================================================
+
+# ----------------------------------------
+# Python
+# ----------------------------------------
+
+# Bytecode y cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.pyc
+*.pyo
+
+# Entornos virtuales
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.env
+.venv
+
+# Distribuciones / empaquetado
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Archivos de base de datos
+*.db
+*.sqlite
+*.sqlite3
+
+# Archivos de log
+*.log
+logs/
+*.log.*
+
+# Archivos de configuración local
+.env.local
+.env.*.local
+config.local.*
+
+# ----------------------------------------
+# FastAPI / Uvicorn
+# ----------------------------------------
+
+# Archivos de salida de la API
+outputs/
+uploads/
+*.csv.tmp
+*.json.tmp
+
+# Archivos de pruebas
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ----------------------------------------
+# Node.js / npm
+# ----------------------------------------
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+.pnpm-debug.log*
+
+# ----------------------------------------
+# IDEs / Editores
+# ----------------------------------------
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+.vscode-test/
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+.idea_modules/
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ----------------------------------------
+# Documentación
+# ----------------------------------------
+
+# Archivos temporales de documentación
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# ----------------------------------------
+# Archivos de prueba específicos
+# ----------------------------------------
+
+# Archivos CSV de prueba (mantén solo el original)
+test.csv
+test_*.csv
+sample_*.csv
+*_test.csv
+*_temp.csv
+
+# Archivos de resultados temporales
+cargar_reglas.js
+cargar_reglas_v2.js
+*.log
+*.out
+
+# ----------------------------------------
+# Docker
+# ----------------------------------------
+
+# Archivos de Docker
+*.pid
+docker-compose.override.yml
+docker-compose.*.yml
+.dockerignore
+
+# ----------------------------------------
+# Git
+# ----------------------------------------
+
+# Archivos de Git
+*.patch
+*.diff
+*.orig
+
+# ----------------------------------------
+# Archivos específicos del proyecto
+# ----------------------------------------
+
+# Archivos generados por el análisis de columnas
+test_*.py
+test_*.ipynb
+
+# Archivos de migraciones (mantén solo los necesarios)
+# migrations/versions/*.py !migrations/versions/__init__.py
+
+# Archivos de outputs de procesamiento
+outputs/*.json
+uploads/*.csv
+!uploads/sample_data.csv
+
+# Base de datos (no subir a Git)
+exogena.db
+exogena.db-journal
+
+# Archivos de configuración con credenciales
+.env 
