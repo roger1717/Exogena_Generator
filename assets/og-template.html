@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+   og-template.html  ->  Molde de la imagen de vista previa (1200 x 630)
+  ============================================================================
+   Esta es la imagen que aparece cuando alguien pega el enlace de la pagina en
+   WhatsApp, LinkedIn, Facebook o X. NO se publica: solo sirve para generar
+   public/img/og.png.
+
+   Si cambias el titular de la pagina, cambia tambien el de aqui y vuelve a
+   generar la imagen con:  npm run og
+  ============================================================================
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 1200px;
+      height: 630px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 70px 78px;
+      font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+      color: #e6e9f2;
+      background-color: #0a0e1a;
+      background-image:
+        radial-gradient(circle at 12% 8%, rgba(108, 92, 231, .38), transparent 45%),
+        radial-gradient(circle at 88% 92%, rgba(0, 209, 178, .28), transparent 48%);
+      overflow: hidden;
+    }
+
+    .marca { display: flex; align-items: center; gap: 16px; }
+    .marca__icono {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: linear-gradient(135deg, #6c5ce7, #00d1b2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 34px; font-weight: 800; color: #fff; line-height: 1;
+    }
+    .marca__texto { font-size: 30px; font-weight: 800; letter-spacing: -.5px; }
+    .marca__acento { color: #00d1b2; }
+
+    h1 {
+      font-size: 64px;
+      line-height: 1.14;
+      letter-spacing: -2px;
+      font-weight: 800;
+    }
+    .degradado {
+      background: linear-gradient(90deg, #8b7cf0, #00d1b2);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .bajada {
+      margin-top: 26px;
+      font-size: 27px;
+      color: #9aa3bd;
+      line-height: 1.5;
+    }
+
+    .pie { display: flex; align-items: flex-end; justify-content: space-between; }
+    .datos { display: flex; gap: 46px; }
+    .dato__num { display: block; font-size: 38px; font-weight: 800; color: #00d1b2; line-height: 1.1; }
+    .dato__txt { display: block; font-size: 19px; color: #9aa3bd; }
+    .web {
+      font-size: 25px; font-weight: 600; color: #e6e9f2;
+      border: 1px solid #2b3352; border-radius: 100px;
+      padding: 12px 26px; background: rgba(17, 22, 41, .75);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="marca">
+    <span class="marca__icono">A</span>
+    <span class="marca__texto">Automat<span class="marca__acento">-IA</span></span>
+  </div>
+
+  <div>
+    <h1>No pierdas <span class="degradado">tiempo ni dinero</span><br />en tareas repetitivas.</h1>
+    <p class="bajada">Automatizaciones con IA a la medida de tu empresa.<br />Calcula cuánto dinero recuperas al año.</p>
+  </div>
+
+  <div class="pie">
+    <div class="datos">
+      <div><span class="dato__num">9</span><span class="dato__txt">sectores</span></div>
+      <div><span class="dato__num">45+</span><span class="dato__txt">automatizaciones</span></div>
+      <div><span class="dato__num">100%</span><span class="dato__txt">a tu medida</span></div>
+    </div>
+    <span class="web">automat-ia.com.co</span>
+  </div>
+
+</body>
+</html>

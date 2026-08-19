@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+   index.html  ->  La estructura (el "esqueleto") de tu landing page
+  ============================================================================
+   El HTML define QUE cosas hay en la pagina (titulos, textos, botones).
+   El diseno (colores, tamanos) vive en css/styles.css.
+   La interactividad (menu, tarjetas, calculadora, formulario) vive en js/main.js.
+  ============================================================================
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <!-- Hace que la pagina se vea bien en celulares (responsive) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Automat-IA | Automatizamos las tareas que te quitan tiempo y dinero</title>
+  <meta name="description" content="Diseño y desarrollo de automatizaciones con Agentes IA a la medida para tu empresa." />
+  <link rel="canonical" href="https://automat-ia.com.co/" />
+  <!-- Color de la barra del navegador en celulares -->
+  <meta name="theme-color" content="#0a0e1a" />
+
+  <!-- Iconos de la pestana y de la pantalla de inicio del celular -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/img/icono-180.png" />
+
+  <!--
+    Vista previa al compartir el enlace (WhatsApp, LinkedIn, Facebook).
+    Sin estas etiquetas el enlace se ve como un rectangulo gris sin imagen.
+    La direccion de la imagen debe ser completa (https://...), no relativa.
+    Si cambias el titular, regenera la imagen con: npm run og
+  -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Automat-IA" />
+  <meta property="og:locale" content="es_CO" />
+  <meta property="og:url" content="https://automat-ia.com.co/" />
+  <meta property="og:title" content="No pierdas tiempo ni dinero en tareas repetitivas" />
+  <meta property="og:description" content="Automatizaciones con IA a la medida de tu empresa. Calcula cuánto dinero recuperas al año." />
+  <meta property="og:image" content="https://automat-ia.com.co/img/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Automat-IA: no pierdas tiempo ni dinero en tareas repetitivas." />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="No pierdas tiempo ni dinero en tareas repetitivas" />
+  <meta name="twitter:description" content="Automatizaciones con IA a la medida de tu empresa. Calcula cuánto dinero recuperas al año." />
+  <meta name="twitter:image" content="https://automat-ia.com.co/img/og.png" />
+
+  <!-- Conectamos la hoja de estilos -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ====================== BARRA DE NAVEGACION ====================== -->
+  <header class="navbar">
+    <div class="container navbar__inner">
+      <a href="#inicio" class="logo">Automat<span class="logo__accent">-IA</span></a>
+      <nav class="nav-links" id="navLinks">
+        <a href="#calculadora">Calculadora</a>
+        <a href="#servicios">Servicios</a>
+        <a href="#proceso">Cómo trabajo</a>
+        <a href="#beneficios">Beneficios</a>
+        <a href="#contacto" class="btn btn--small">Diagnóstico gratis</a>
+      </nav>
+      <!-- Boton hamburguesa para el menu en celulares -->
+      <button class="nav-toggle" id="navToggle" aria-label="Abrir menú">&#9776;</button>
+    </div>
+  </header>
+
+  <!-- ====================== HERO (primera pantalla) ====================== -->
+  <section class="hero" id="inicio">
+    <div class="container hero__inner">
+      <p class="hero__eyebrow">Agentes de IA a la medida de tu empresa</p>
+      <h1 class="hero__title">
+        No pierdas <span class="text-gradient">tiempo ni dinero</span><br />
+        en tareas repetitivas.
+      </h1>
+      <p class="hero__subtitle">
+        Diseño y desarrollo de automatizaciones con IA que hacen el trabajo manual por ti, de una
+        manera más inteligente: clasifican documentos, responden a tus clientes, cruzan datos y
+        mucho más. Tu equipo se enfoca en lo que de verdad importa.
+      </p>
+      <div class="hero__cta">
+        <a href="#contacto" class="btn btn--primary">Quiero mi diagnóstico gratuito</a>
+        <a href="#calculadora" class="btn btn--ghost">Calcular cuánto ahorro</a>
+      </div>
+      <div class="hero__stats">
+        <div class="stat"><span class="stat__num" id="statSectores">9</span><span class="stat__label">sectores</span></div>
+        <div class="stat"><span class="stat__num" id="statServicios">45+</span><span class="stat__label">automatizaciones</span></div>
+        <div class="stat"><span class="stat__num">100%</span><span class="stat__label">a tu medida</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== EL PROBLEMA ====================== -->
+  <section class="problem section">
+    <div class="container">
+      <h2 class="section__title">Cada tarea manual es dinero que se escapa</h2>
+      <p class="section__subtitle">
+        Un empleado puede perder horas cada semana copiando datos, revisando PDF o respondiendo
+        las mismas preguntas. Multiplícalo por todo tu equipo y por todo el año.
+      </p>
+      <div class="problem__grid">
+        <div class="problem__card">
+          <span class="problem__icon">&#9203;</span>
+          <h3>Horas perdidas</h3>
+          <p>El trabajo repetitivo consume tiempo que podría dedicarse a vender, atender y crecer.</p>
+        </div>
+        <div class="problem__card">
+          <span class="problem__icon">&#10060;</span>
+          <h3>Errores humanos</h3>
+          <p>Copiar y pegar manualmente genera errores costosos en pagos, inventarios o facturas.</p>
+        </div>
+        <div class="problem__card">
+          <span class="problem__icon">&#128184;</span>
+          <h3>Costo oculto</h3>
+          <p>Lo que hoy parece «normal» es un gasto silencioso que crece mes a mes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== CALCULADORA DE RETORNO (el dashboard) ====================== -->
+  <!--
+    Esta seccion es la que le habla al gerente en su idioma: numeros.
+    Los campos de la izquierda alimentan el tablero de la derecha en tiempo real
+    (la logica esta en la seccion 3 de js/main.js).
+  -->
+  <section class="roi section" id="calculadora">
+    <div class="container">
+      <h2 class="section__title">¿Cuánto te cuesta hoy <span class="text-gradient">hacerlo a mano</span>?</h2>
+      <p class="section__subtitle">
+        Ajusta los datos de tu operación y mira el antes y el después en dinero real. No pides nada
+        ni te registras: el cálculo es tuyo y cambia mientras escribes.
+      </p>
+
+      <div class="roi__panel">
+        <!-- ---------- Columna izquierda: los datos de su operacion ---------- -->
+        <div class="roi__inputs">
+          <h3 class="roi__col-title">Tu operación hoy</h3>
+
+          <label class="roi__field">Sector
+            <!-- Las opciones se generan desde data.js -->
+            <select id="roiSector"></select>
+          </label>
+
+          <div class="roi__field-row">
+            <label class="roi__field">Personas en la tarea
+              <input type="number" id="roiPersonas" min="1" max="500" step="1" value="3" />
+            </label>
+            <label class="roi__field">Horas por semana (c/u)
+              <input type="number" id="roiHorasSemana" min="1" max="45" step="1" value="8" />
+            </label>
+          </div>
+
+          <div class="roi__field-row">
+            <label class="roi__field">Moneda
+              <select id="roiMoneda">
+                <option value="COP" selected>Peso colombiano (COP)</option>
+                <option value="MXN">Peso mexicano (MXN)</option>
+                <option value="USD">Dólar (USD)</option>
+                <option value="EUR">Euro (EUR)</option>
+              </select>
+            </label>
+            <label class="roi__field">Costo por hora
+              <input type="number" id="roiCostoHora" min="1" step="100" value="25000" />
+            </label>
+          </div>
+
+          <label class="roi__field">Pérdidas al mes por errores y reprocesos <span class="roi__opt">(opcional)</span>
+            <input type="number" id="roiErrores" min="0" step="100" value="0" />
+          </label>
+
+          <label class="roi__field roi__field--slider">
+            <span class="roi__slider-head">
+              Parte del proceso que se puede automatizar
+              <strong id="roiPctOut">70%</strong>
+            </span>
+            <input type="range" id="roiPct" min="20" max="95" step="5" value="70" />
+          </label>
+
+          <p class="roi__hint">
+            &#128161; ¿No sabes qué poner? Deja los valores como están: son los promedios que veo
+            en empresas del sector que elijas.
+          </p>
+        </div>
+
+        <!-- ---------- Columna derecha: el tablero de resultados ---------- -->
+        <div class="roi__results">
+          <div class="roi__headline">
+            <span class="roi__headline-label">Recuperas al año</span>
+            <span class="roi__headline-num" id="roiAnual">$0</span>
+            <span class="roi__headline-sub" id="roiMensual">$0 cada mes</span>
+          </div>
+
+          <div class="roi__compare">
+            <div class="roi__bar-row">
+              <div class="roi__bar-head">
+                <span class="roi__bar-tag roi__bar-tag--before">Antes · proceso manual</span>
+                <strong id="roiAntes">$0</strong>
+              </div>
+              <div class="roi__bar"><span class="roi__bar-fill roi__bar-fill--before" id="roiBarAntes"></span></div>
+            </div>
+            <div class="roi__bar-row">
+              <div class="roi__bar-head">
+                <span class="roi__bar-tag roi__bar-tag--after">Después · con automatización IA</span>
+                <strong id="roiDespues">$0</strong>
+              </div>
+              <div class="roi__bar"><span class="roi__bar-fill roi__bar-fill--after" id="roiBarDespues"></span></div>
+            </div>
+            <p class="roi__bar-note">Costo mensual del mismo proceso, antes y después de automatizarlo.</p>
+          </div>
+
+          <div class="roi__kpis">
+            <div class="roi__kpi">
+              <span class="roi__kpi-num" id="roiHorasAnio">0</span>
+              <span class="roi__kpi-label">horas recuperadas al año</span>
+            </div>
+            <div class="roi__kpi">
+              <span class="roi__kpi-num" id="roiDias">0</span>
+              <span class="roi__kpi-label">días laborales devueltos al equipo</span>
+            </div>
+            <div class="roi__kpi">
+              <span class="roi__kpi-num" id="roiFte">0</span>
+              <span class="roi__kpi-label">personas de tiempo completo liberadas</span>
+            </div>
+          </div>
+
+          <button type="button" class="btn btn--primary btn--block" id="roiCta">
+            Quiero recuperar ese dinero
+          </button>
+          <p class="roi__disclaimer">
+            Estimación con los datos que ingresaste. En el diagnóstico gratuito la ajustamos con tus
+            cifras reales antes de que inviertas un peso.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== SERVICIOS (se llenan solos desde data.js) ====================== -->
+  <section class="services section" id="servicios">
+    <div class="container">
+      <h2 class="section__title">Automatizaciones por sector</h2>
+      <p class="section__subtitle">
+        Elige tu sector y mira las tareas que puedo automatizar por ti. Si algo se parece a lo que
+        vives, pulsa <strong>«Lo quiero»</strong>. Y si tu problema no está en la lista, cuéntame
+        cuál es y qué necesitas: casi siempre hay una forma de resolverlo.
+      </p>
+
+      <!-- Botones para filtrar por nicho (se generan con JavaScript) -->
+      <div class="tabs" id="tabs"></div>
+
+      <!-- Aqui JavaScript dibujara las tarjetas del nicho seleccionado -->
+      <div class="services__grid" id="servicesGrid"></div>
+    </div>
+  </section>
+
+  <!-- ====================== COMO TRABAJO (proceso) ====================== -->
+  <section class="process section" id="proceso">
+    <div class="container">
+      <h2 class="section__title">Cómo trabajo contigo</h2>
+      <p class="section__subtitle">Un proceso simple, claro y sin sorpresas.</p>
+      <div class="process__grid">
+        <div class="process__step">
+          <span class="process__num">1</span>
+          <h3>Diagnóstico gratis</h3>
+          <p>Conversamos 20 minutos, identifico la tarea que más te cuesta y evalúo Como la podemos automatizar.</p>
+        </div>
+        <div class="process__step">
+          <span class="process__num">2</span>
+          <h3>Propuesta clara</h3>
+          <p>Te presento qué hará la automatización, cuánto te ahorra al año, el precio y el tiempo de entrega.</p>
+        </div>
+        <div class="process__step">
+          <span class="process__num">3</span>
+          <h3>Desarrollo</h3>
+          <p>Construyo el agente a tu medida y lo pruebo con tus datos reales hasta que funcione perfecto.</p>
+        </div>
+        <div class="process__step">
+          <span class="process__num">4</span>
+          <h3>Entrega y soporte</h3>
+          <p>Lo dejo funcionando, te enseño a usarlo y quedo disponible para ajustes y mejoras.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== BENEFICIOS ====================== -->
+  <section class="benefits section" id="beneficios">
+    <div class="container">
+      <h2 class="section__title">Por qué automatizar con Automat-IA</h2>
+      <div class="benefits__grid">
+        <div class="benefit"><span class="benefit__icon">&#128176;</span><h3>Retorno medible</h3><p>Sabes cuánto ahorras antes de invertir, en dinero y en horas.</p></div>
+        <div class="benefit"><span class="benefit__icon">&#127919;</span><h3>Menos errores</h3><p>Los procesos automáticos son precisos y consistentes.</p></div>
+        <div class="benefit"><span class="benefit__icon">&#128200;</span><h3>Escala sin contratar</h3><p>Haz más con el mismo equipo.</p></div>
+        <div class="benefit"><span class="benefit__icon">&#128295;</span><h3>Hecho a tu medida</h3><p>Cada solución se adapta a tu forma de trabajar.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== CONTACTO / FORMULARIO ====================== -->
+  <section class="contact section" id="contacto">
+    <div class="container contact__inner">
+      <div class="contact__text">
+        <h2 class="section__title">Solicita tu diagnóstico gratuito</h2>
+        <p class="section__subtitle">
+          Cuéntame qué tarea te quita más tiempo o dinero. Te respondo con una idea concreta de
+          cómo automatizarla y cuánto ahorrarías, sin compromiso.
+        </p>
+        <ul class="contact__list">
+          <li>&#10004; Respuesta en menos de 24 horas</li>
+          <li>&#10004; Sin costo y sin compromiso</li>
+          <li>&#10004; Propuesta clara, con el ahorro estimado en cifras</li>
+        </ul>
+      </div>
+
+      <!-- El formulario. Al enviarlo, main.js lo manda al servidor (/api/leads) -->
+      <form class="form" id="leadForm">
+        <div class="form__row">
+          <label>Nombre *
+            <input type="text" name="nombre" required placeholder="Tu nombre" />
+          </label>
+          <label>Empresa
+            <input type="text" name="empresa" placeholder="Nombre de tu empresa" />
+          </label>
+        </div>
+        <div class="form__row">
+          <label>Email *
+            <input type="email" name="email" required placeholder="tucorreo@empresa.com" />
+          </label>
+          <label>Teléfono / WhatsApp
+            <input type="tel" name="telefono" placeholder="+57 " />
+          </label>
+        </div>
+        <div class="form__row">
+          <label>¿Qué necesitas?
+            <select name="tipo_solicitud" id="tipoSolicitudSelect">
+              <option value="Diagnóstico gratuito">Diagnóstico gratuito</option>
+              <option value="MVP para evaluar mi problema">Un MVP de prueba</option>
+              <option value="Cotizar proyecto completo">Cotizar un proyecto</option>
+            </select>
+          </label>
+          <label>Servicio de interés
+            <select name="servicio_interes" id="servicioSelect">
+              <option value="">Selecciona (opcional)</option>
+            </select>
+          </label>
+        </div>
+        <label>Cuéntame tu caso: ¿qué tarea te genera inconvenientes?
+          <textarea name="mensaje" id="mensajeInput" rows="4" placeholder="Ej.: perdemos 2 días al mes revisando facturas en PDF y se nos cuelan errores..."></textarea>
+        </label>
+        <!--
+          Campo trampa contra robots: es invisible para las personas, asi que si
+          llega con texto, el servidor descarta el envio. No lo quites.
+        -->
+        <input type="text" name="sitio_web" tabindex="-1" autocomplete="off"
+               aria-hidden="true" class="form__trampa" />
+        <!-- Campo oculto: registra desde donde se envio (tarjeta, calculadora o formulario) -->
+        <input type="hidden" name="origen" id="origenInput" value="formulario_final" />
+        <!-- Campo oculto: guarda el ahorro anual que calculo el visitante, si uso la calculadora -->
+        <input type="hidden" name="ahorro_estimado" id="ahorroInput" value="" />
+        <!--
+          Autorizacion de tratamiento de datos. Es obligatoria por la Ley 1581 de
+          2012 (habeas data) al recoger nombre, correo y telefono de personas.
+        -->
+        <label class="form__consent">
+          <input type="checkbox" name="consentimiento" value="si" required />
+          <span>
+            Autorizo el tratamiento de mis datos para que me contacten sobre esta
+            solicitud, según la <a href="/privacidad.html" target="_blank" rel="noopener">política de
+            privacidad</a>.
+          </span>
+        </label>
+        <button type="submit" class="btn btn--primary btn--block">Enviar solicitud</button>
+        <!-- Aqui se muestra el mensaje de exito o error -->
+        <p class="form__feedback" id="formFeedback"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ====================== PIE DE PAGINA ====================== -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <span class="logo">Automat<span class="logo__accent">-IA</span></span>
+      <p>Automatización inteligente para empresas que quieren mejorar su productividad.</p>
+      <p class="footer__small"><a href="/privacidad.html">Política de privacidad</a></p>
+      <p class="footer__small">&copy; <span id="year"></span> Automat-IA. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Cargamos primero los datos y luego la logica -->
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

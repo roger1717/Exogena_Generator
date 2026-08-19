@@ -1,0 +1,25 @@
+{
+  "name": "automat-ia",
+  "version": "1.0.0",
+  "description": "Landing page de Automat-IA: servicios de automatizacion con agentes de IA para empresas.",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.js",
+    "dev": "node --env-file-if-exists=.env --watch server.js",
+    "og": "node scripts/generar-imagenes.js"
+  },
+  "keywords": [
+    "automatizacion",
+    "ia",
+    "agentes",
+    "landing"
+  ],
+  "author": "Automat-IA",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "pg": "^8.13.1",
+    "resend": "^6.18.1"
+  }
+}
