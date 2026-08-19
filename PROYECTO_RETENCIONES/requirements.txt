@@ -1,0 +1,46 @@
+# Core
+python-dotenv==1.0.0
+pydantic==2.4.2
+pydantic-settings==2.0.3
+
+# API
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Base de datos - SQLite (no requiere compilación)
+sqlalchemy==2.0.23
+alembic==1.12.0
+
+# Manejo de archivos (alternativas a pandas)
+openpyxl==3.1.2  # Para leer/escribir Excel
+csvkit==1.0.7    # Para manejo de CSV desde línea de comandos
+tabulate==0.9.0  # Para formatear tablas
+
+# Utilidades
+python-decouple==3.8
+loguru==0.7.2
+pytz==2023.3
+decorator==5.1.1
+
+# Validación
+validators==0.20.0
+
+# Pruebas
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+factory-boy==3.3.0
+faker==20.1.0
+httpx==0.25.0
+
+# Seguridad
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+
+# Calidad de código
+black==23.11.0
+flake8==6.1.0
+mypy==1.6.1
+isort==5.12.0
