@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.core.config import settings
-from app.api.routes import mapping,exogena
+from app.api.routes import mapping,exogena,retencion
 
 # Crear la aplicación FastAPI
 app = FastAPI(
