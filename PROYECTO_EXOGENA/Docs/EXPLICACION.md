@@ -107,3 +107,17 @@ PUC	Nombre	Naturaleza	Concepto DIAN	Formato DIAN
 417005	Devoluciones en ventas	Ingreso negativo	8002	1007
 136505	Cuentas por cobrar empleados	Activo	9001	1008
 220505	Proveedores nacionales	Pasivo	9002	1009
+
+
+Tu CSV tiene estas columnas:
+
+Columna	Ejemplo	¿Qué contiene?
+Fecha	2025-01-01	Fecha de la transacción
+Asiento	1046	Número de comprobante
+Cuenta	236530	Código PUC (¡Esta es la clave!)
+Nombre_Cuenta	Retencion Arrendamientos 3.5%	Descripción de la cuenta
+NIT_Tercero	800987654	NIT del proveedor/cliente
+Razon_Social	Insumos Industriales Ltda	Nombre del tercero
+Debito	0.0	Valor débito
+Credito	1447771.55	Valor crédito
+Concepto	Registro contable...	Descripción adicional

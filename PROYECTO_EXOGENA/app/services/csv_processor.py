@@ -182,6 +182,11 @@ class CSVProcessor:
             nombre = str(row.get('nombre_tercero', '')).strip()
             valor = float(row.get('valor', 0))
             puc = str(row.get('codigo_puc', '')).strip()
+            if '.' in puc:
+                puc = puc.split('.')[0]
+            else:
+                puc = puc.raw
+            puc = puc.strip()
 
             if not nit or nit == 'nan':
                 errors.append({'row': row_num, 'error': 'NIT vacío'})

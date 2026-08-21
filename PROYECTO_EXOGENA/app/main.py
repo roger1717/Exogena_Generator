@@ -16,7 +16,7 @@ from app.api.routes import mapping,exogena,retencion
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
-    description="API para gestión de información exógena - MVP",
+    description="API para gestión de información exógena - retencion fuente",
     docs_url="/docs" if settings.DEBUG else None,
     redoc_url="/redoc" if settings.DEBUG else None
 )
@@ -33,6 +33,7 @@ app.add_middleware(
 # Registrar los routers
 app.include_router(mapping.router)
 app.include_router(exogena.router)
+app.include_router(retencion.router)
 
 @app.get("/")
 async def root():

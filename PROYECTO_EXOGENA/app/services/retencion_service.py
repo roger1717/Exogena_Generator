@@ -10,21 +10,22 @@ prepara datos para exógena.
 
 import pandas as pd
 from pathlib import Path
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Any
 from datetime import datetime
 from decimal import Decimal
 from sqlalchemy.orm import Session
 
 from app.core.constants import (
-    CONCEPTOS_RETENCION_DIAN,
-    TARIFAS_RETENCION,
-    PUC_RETENCIONES,
-    PUC_A_CONCEPTO_RETENCION,
-    TOPES_MINIMOS,
     FORMATO_EXOGENA_A_RETENCION,
+    CONCEPTO_CONTABLE_A_DIAN,
+    get_tarifa_retencion,
+    get_tope_minimo,
+    es_cuenta_retencion,
+    obtener_regla_retencion,
+    REGLAS_RETENCION,
 )
 from app.models.retencion import Retencion
-from app.schemas.retencion import RetencionCreate, RetencionResponse
+from app.models.mapping_rule import MappingRule
 from app.utils.file_processor import FileProcessor
 
 
@@ -43,11 +44,45 @@ class RetencionService:
         self.db = db
         self.file_processor = FileProcessor()
     
+    def obtener_regla(self, puc_code: str) -> Optional[Dict]:
+        """
+        Obtener regla de mapeo (primero de BD, luego de constants)
+        
+        Args:
+            puc_code: Código PUC a buscar
+        
+        Returns:
+            Dict con la regla o None
+        """
+        # 1. Intentar desde BD
+        if self.db:
+            regla_bd = self.db.query(MappingRule).filter(
+                MappingRule.puc_code == puc_code
+            ).first()
+            
+            if regla_bd:
+                return {
+                    'puc_code': regla_bd.puc_code,
+                    'puc_name': regla_bd.puc_name,
+                    'exogena_format': regla_bd.exogena_format,
+                    'exogena_concept': regla_bd.exogena_concept,
+                    'exogena_concept_name': regla_bd.exogena_concept_name,
+                    'concepto_retencion': regla_bd.concepto_retencion,
+                    'tarifa_retencion': float(regla_bd.tarifa_retencion) if regla_bd.tarifa_retencion else None,
+                    'tope_minimo': float(regla_bd.tope_minimo) if regla_bd.tope_minimo else 0,
+                    'aplica_iva': regla_bd.aplica_iva or False,
+                    'tipo_retencion': regla_bd.tipo_retencion,
+                    'activo': regla_bd.activo if regla_bd.activo is not None else True
+                }
+        
+        # 2. Fallback a constants.py
+        return obtener_regla_retencion(puc_code)
+    
     def procesar_desde_excel(
         self,
         file_path: Path,
         sheet_name: str = "Retenciones_Auxiliar"
-    ) -> Dict:
+    ) -> Dict[str, Any]:
         """
         Procesar retenciones desde un archivo Excel
         
@@ -77,17 +112,93 @@ class RetencionService:
         
         for idx, row in enumerate(datos):
             try:
-                retencion = self._procesar_fila_excel(row, idx)
-                if retencion:
-                    procesados.append(retencion)
-                    total_retenido += retencion['valor_retenido']
+                # Validar datos requeridos
+                nit = row.get('NIT_Tercero')
+                if not nit:
+                    errores.append({
+                        "fila": idx + 2,
+                        "error": "NIT del tercero no encontrado"
+                    })
+                    continue
+                
+                valor_retenido = row.get('Valor_Retenido', 0)
+                if not valor_retenido or float(valor_retenido) == 0:
+                    continue
+                
+                # Obtener cuenta PUC
+                cuenta_pasivo = row.get('Cuenta_Pasivo', '')
+                
+                # 1. Obtener regla desde BD o constants
+                regla = self.obtener_regla(cuenta_pasivo)
+                
+                if not regla:
+                    errores.append({
+                        "fila": idx + 2,
+                        "error": f"Cuenta {cuenta_pasivo} no tiene regla de mapeo"
+                    })
+                    continue
+                
+                # 2. Verificar si es cuenta de retención
+                if not regla.get('activo', True):
+                    errores.append({
+                        "fila": idx + 2,
+                        "error": f"Cuenta {cuenta_pasivo} está inactiva"
+                    })
+                    continue
+                
+                concepto_retencion = regla.get('concepto_retencion')
+                if not concepto_retencion:
+                    errores.append({
+                        "fila": idx + 2,
+                        "error": f"Cuenta {cuenta_pasivo} no tiene concepto de retención"
+                    })
+                    continue
+                
+                # 3. Validar tope mínimo
+                base_gravable = float(row.get('Base_Gravable', 0))
+                tope_minimo = regla.get('tope_minimo', 0)
+                
+                if base_gravable < tope_minimo:
+                    # No aplica retención por tope mínimo
+                    continue
+                
+                # 4. Obtener tarifa
+                tarifa = regla.get('tarifa_retencion', float(row.get('Porcentaje_ReteFuente', 0)))
+                
+                # 5. Obtener concepto contable
+                concepto_contable = row.get('Concepto_Contable', '')
+                
+                # 6. Crear registro
+                retencion_data = {
+                    'fecha': row.get('Fecha_Transaccion'),
+                    'comprobante': row.get('Comprobante'),
+                    'nit_tercero': str(nit).strip(),
+                    'nombre_tercero': row.get('Razon_Social'),
+                    'perfil_tributario': row.get('Perfil_Tributario', ''),
+                    'concepto_contable': concepto_contable,
+                    'concepto_dian': concepto_retencion,
+                    'base_gravable': base_gravable,
+                    'tarifa': tarifa,
+                    'valor_retenido': float(valor_retenido),
+                    'cuenta_pasivo': cuenta_pasivo,
+                    'formato_asignado': FORMATO_EXOGENA_A_RETENCION.get(
+                        regla.get('exogena_format', '1001'), '1003'
+                    ),
+                    'concepto_exogena': regla.get('exogena_concept'),
+                    'periodo': self._obtener_periodo(row.get('Fecha_Transaccion')),
+                    'estado': 'procesado'
+                }
+                
+                procesados.append(retencion_data)
+                total_retenido += retencion_data['valor_retenido']
+                
+                # Guardar en BD si hay sesión
+                if self.db:
+                    self._guardar_retencion(retencion_data)
                     
-                    # Guardar en BD si hay sesión
-                    if self.db:
-                        self._guardar_retencion(retencion)
             except Exception as e:
                 errores.append({
-                    "fila": idx + 2,  # +2 por cabecera y 0-index
+                    "fila": idx + 2,
                     "error": str(e)
                 })
         
@@ -103,75 +214,14 @@ class RetencionService:
             "detalles": procesados
         }
     
-    def _procesar_fila_excel(self, row: Dict, idx: int) -> Optional[Dict]:
-        """
-        Procesar una fila del archivo Excel
-        
-        Args:
-            row: Diccionario con los datos de la fila
-            idx: Índice de la fila
-        
-        Returns:
-            Dict con la retención procesada o None
-        """
-        # Validar datos requeridos
-        if not row.get('NIT_Tercero'):
-            raise ValueError(f"NIT del tercero no encontrado en fila {idx}")
-        
-        if row.get('Valor_Retenido', 0) == 0:
-            return None
-        
-        # Obtener concepto DIAN desde el concepto contable
-        concepto_contable = row.get('Concepto_Contable', '')
-        concepto_dian = self._mapear_concepto_a_dian(concepto_contable)
-        
-        # Obtener cuenta PUC
-        cuenta_pasivo = row.get('Cuenta_Pasivo', '')
-        
-        # Validar que la cuenta sea de retención
-        if not self._es_cuenta_retencion(cuenta_pasivo):
-            raise ValueError(f"Cuenta {cuenta_pasivo} no es de retención")
-        
-        # Crear registro
-        return {
-            'fecha': row.get('Fecha_Transaccion'),
-            'comprobante': row.get('Comprobante'),
-            'nit_tercero': str(row.get('NIT_Tercero')).strip(),
-            'nombre_tercero': row.get('Razon_Social'),
-            'perfil_tributario': row.get('Perfil_Tributario', ''),
-            'concepto_contable': concepto_contable,
-            'concepto_dian': concepto_dian,
-            'base_gravable': float(row.get('Base_Gravable', 0)),
-            'tarifa': float(row.get('Porcentaje_ReteFuente', 0)),
-            'valor_retenido': float(row.get('Valor_Retenido', 0)),
-            'cuenta_pasivo': cuenta_pasivo,
-            'periodo': self._obtener_periodo(row.get('Fecha_Transaccion')),
-            'estado': 'procesado'
-        }
-    
-    def _mapear_concepto_a_dian(self, concepto_contable: str) -> str:
-        """Mapear concepto contable a código DIAN"""
-        mapa = {
-            "Arrendamientos": "01",
-            "Servicios Generales": "02",
-            "Honorarios": "03",
-            "Servicios Profesionales": "04",
-            "Comisiones": "05",
-            "Transporte de carga": "06",
-        }
-        return mapa.get(concepto_contable, "99")
-    
-    def _es_cuenta_retencion(self, cuenta: str) -> bool:
-        """Verificar si una cuenta es de retención"""
-        return cuenta.startswith('2365')
-    
     def _obtener_periodo(self, fecha) -> str:
         """Obtener período YYYY-MM desde una fecha"""
         if isinstance(fecha, str):
-            fecha = datetime.strptime(fecha, '%Y-%m-%d')
-        elif isinstance(fecha, datetime):
-            pass
-        else:
+            try:
+                fecha = datetime.strptime(fecha, '%Y-%m-%d')
+            except ValueError:
+                fecha = datetime.now()
+        elif not isinstance(fecha, datetime):
             fecha = datetime.now()
         return fecha.strftime('%Y-%m')
     
@@ -181,7 +231,6 @@ class RetencionService:
             return None
         
         try:
-            # Crear instancia del modelo
             retencion = Retencion(**retencion_data)
             self.db.add(retencion)
             return retencion
@@ -211,7 +260,8 @@ class RetencionService:
         # Generar líneas del archivo
         lineas = []
         for r in retenciones:
-            if r['valor_retenido'] > 0:
+            if r.get('valor_retenido', 0) > 0:
+                # Formato: TipoRegistro|NIT|Concepto|Base|ValorRetenido|Periodo
                 linea = (
                     f"{formato}|"
                     f"{r['nit_tercero']}|"
@@ -221,6 +271,9 @@ class RetencionService:
                     f"{r['periodo']}"
                 )
                 lineas.append(linea)
+        
+        if not lineas:
+            raise ValueError("No hay retenciones con valor > 0 para generar")
         
         # Guardar archivo
         output_file = output_path / f"formato_{formato}_{datetime.now().strftime('%Y%m%d')}.txt"
@@ -253,7 +306,7 @@ class RetencionService:
         columnas = [
             'fecha', 'comprobante', 'nit_tercero', 'nombre_tercero',
             'concepto_contable', 'concepto_dian', 'base_gravable',
-            'tarifa', 'valor_retenido', 'cuenta_pasivo', 'periodo'
+            'tarifa', 'valor_retenido', 'cuenta_pasivo', 'periodo', 'estado'
         ]
         df = df[[c for c in columnas if c in df.columns]]
         
@@ -280,13 +333,32 @@ class RetencionService:
         
         return {
             'total_retenciones': len(df),
-            'total_retenido': df['valor_retenido'].sum(),
-            'total_base': df['base_gravable'].sum(),
-            'tarifa_promedio': df['tarifa'].mean() * 100,
-            'por_concepto': df.groupby('concepto_contable').agg({
+            'total_retenido': float(df['valor_retenido'].sum()),
+            'total_base': float(df['base_gravable'].sum()),
+            'tarifa_promedio': float(df['tarifa'].mean() * 100),
+            'por_concepto': df.groupby('concepto_dian').agg({
                 'valor_retenido': ['count', 'sum']
             }).to_dict(),
             'por_periodo': df.groupby('periodo').agg({
                 'valor_retenido': 'sum'
             }).to_dict()
         }
+    
+    def obtener_retenciones_por_periodo(self, periodo: str) -> List[Dict]:
+        """
+        Obtener retenciones de la BD por período
+        
+        Args:
+            periodo: Período en formato YYYY-MM
+        
+        Returns:
+            Lista de retenciones
+        """
+        if not self.db:
+            return []
+        
+        retenciones = self.db.query(Retencion).filter(
+            Retencion.periodo == periodo
+        ).all()
+        
+        return [r.to_dict() for r in retenciones]
