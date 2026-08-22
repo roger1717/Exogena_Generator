@@ -169,24 +169,16 @@ async def procesar_retenciones(
                 # Generar Excel
                 try:
                     excel_gen = ExcelGenerator()
-                    periodo = retenciones[0].get('periodo') if retenciones else None
-                    excel_path = excel_gen.generar_reporte_retenciones(
-                        retenciones, 
-                        periodo=periodo
-                    )
-                    archivos_generados['excel'] = str(excel_path)
+                    archivos_excel = excel_gen.generar_reporte_por_tipo(retenciones, periodo)
+                    archivos_generados['excel'] = {tipo: str(path) for tipo, path in archivos_excel.items()}
                 except Exception as e:
                     archivos_generados['error_excel'] = str(e)
-                
-                # Generar XML
+
+# 3. Generar XML (separados por tipo)
                 try:
                     xml_gen = XMLGenerator()
-                    periodo = retenciones[0].get('periodo') if retenciones else None
-                    xml_path = xml_gen.generar_xml_retenciones(
-                        retenciones,
-                        periodo=periodo
-                    )
-                    archivos_generados['xml'] = str(xml_path)
+                    archivos_xml = xml_gen.generar_xml_por_tipo(retenciones, periodo)
+                    archivos_generados['xml'] = {tipo: str(path) for tipo, path in archivos_xml.items()}
                 except Exception as e:
                     archivos_generados['error_xml'] = str(e)
             

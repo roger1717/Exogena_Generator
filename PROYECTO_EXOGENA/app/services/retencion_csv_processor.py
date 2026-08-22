@@ -4,13 +4,12 @@
 """
 Procesador de CSV para Retenciones en la Fuente
 
-Este módulo procesa un archivo CSV de auxiliar contable y extrae
-las retenciones en la fuente (cuentas 2365xx) para generar
-el formato DIAN 1003.
+Extrae retenciones del auxiliar contable y las clasifica por tipo
+(ReteFuente, ReteIVA, ReteICA) según las reglas de mapeo.
 
 Autor: [Tu nombre]
-Fecha: 2026-08-21
-Versión: 2.0.0
+Fecha: 2026-08-22
+Versión: 3.0.0
 """
 
 import pandas as pd
@@ -23,7 +22,7 @@ import logging
 
 from app.models.mapping_rule import MappingRule
 from app.models.retencion import Retencion
-from app.core.constants import obtener_regla_retencion
+from app.core.constants import obtener_regla_retencion, CONCEPTOS_RETENCION_DIAN
 
 logger = logging.getLogger(__name__)
 
@@ -31,21 +30,25 @@ logger = logging.getLogger(__name__)
 class RetencionCSVProcessor:
     """
     Procesador de archivos CSV para retenciones en la fuente.
-    
-    Lee un auxiliar contable en formato CSV y extrae las retenciones
-    (cuentas 2365xx) para generar el formato DIAN 1003.
     """
     
-    # Patrón para extraer tarifa del nombre de la cuenta
     TARIFA_PATTERN = re.compile(r'(\d+[.,]?\d*)%')
     
+    # Mapeo de cuentas ICA a conceptos
+    CUENTAS_ICA = {
+        "236805": "21",  # ReteICA Comercial
+        "236810": "22",  # ReteICA Servicios
+        "236815": "23",  # ReteICA Industrial
+    }
+    
+    CUENTAS_IVA = {
+        "236535": "11",  # ReteIVA Servicios
+        "236536": "12",  # ReteIVA Bienes
+        "236537": "13",  # ReteIVA Honorarios
+    }
+    
     def __init__(self, db: Session):
-        """
-        Inicializar el procesador
-        
-        Args:
-            db: Sesión de base de datos
-        """
+        """Inicializar el procesador"""
         self.db = db
         self.reglas = self._cargar_reglas()
     
@@ -80,7 +83,6 @@ class RetencionCSVProcessor:
                 if field in mapping:
                     break
         
-        # Verificar columnas requeridas
         required = ['fecha', 'asiento', 'cuenta', 'nit', 'razon_social']
         missing = [f for f in required if f not in mapping]
         
@@ -109,30 +111,18 @@ class RetencionCSVProcessor:
         raise ValueError(f"No se pudo leer el archivo {file_path}")
     
     def _limpiar_puc(self, puc: str) -> str:
-        """
-        Limpiar el código PUC eliminando puntos y decimales
-        
-        Args:
-            puc: Código PUC (ej: "236530.0" → "236530")
-        
-        Returns:
-            str: Código PUC limpio
-        """
+        """Limpiar el código PUC eliminando puntos y decimales"""
         if not puc:
             return ""
-        
         puc_str = str(puc).strip()
-        # Eliminar punto decimal y ceros
         if '.' in puc_str:
             puc_str = puc_str.split('.')[0]
-        puc_str = puc_str.strip()
-        return puc_str
+        return puc_str.strip()
     
     def _extraer_tarifa(self, nombre_cuenta: str) -> float:
         """Extraer tarifa del nombre de la cuenta"""
         if not nombre_cuenta:
             return 0.0
-        
         match = self.TARIFA_PATTERN.search(str(nombre_cuenta))
         if match:
             try:
@@ -159,13 +149,12 @@ class RetencionCSVProcessor:
             return "Comisiones"
         elif 'transporte' in nombre:
             return "Transporte de carga"
+        elif 'reteiva' in nombre:
+            return "ReteIVA"
+        elif 'reteica' in nombre:
+            return "ReteICA"
         else:
             return "Concepto Contable Múltiple"
-    
-    def _es_cuenta_retencion(self, cuenta: str) -> bool:
-        """Verificar si una cuenta es de retención (2365xx)"""
-        cuenta_limpia = self._limpiar_puc(cuenta)
-        return cuenta_limpia.startswith('2365')
     
     def _obtener_periodo(self, fecha) -> str:
         """Obtener período YYYY-MM desde una fecha"""
@@ -176,33 +165,53 @@ class RetencionCSVProcessor:
                 fecha = datetime.now()
         elif not isinstance(fecha, (datetime, pd.Timestamp)):
             fecha = datetime.now()
-        
         return fecha.strftime('%Y-%m')
     
     def _obtener_valor(self, row: pd.Series, mapping: Dict[str, str]) -> float:
         """Obtener el valor de la fila (débito o crédito)"""
-        # Intentar con crédito primero
         if 'credito' in mapping and mapping['credito'] in row:
             valor = row.get(mapping['credito'], 0)
             if pd.notna(valor) and float(valor) != 0:
                 return float(valor)
-        
-        # Intentar con débito
         if 'debito' in mapping and mapping['debito'] in row:
             valor = row.get(mapping['debito'], 0)
             if pd.notna(valor) and float(valor) != 0:
                 return float(valor)
-        
         return 0.0
+    
+    def _determinar_tipo_retencion(self, cuenta: str) -> Tuple[str, str]:
+        """
+        Determinar el tipo de retención según la cuenta PUC
+        
+        Returns:
+            Tuple: (tipo_retencion, concepto_dian)
+        """
+        cuenta_limpia = self._limpiar_puc(cuenta)
+        
+        # Verificar si es ReteIVA
+        if cuenta_limpia in self.CUENTAS_IVA:
+            return "iva", self.CUENTAS_IVA[cuenta_limpia]
+        
+        # Verificar si es ReteICA
+        if cuenta_limpia in self.CUENTAS_ICA:
+            return "ica", self.CUENTAS_ICA[cuenta_limpia]
+        
+        # Si es cuenta 2365xx, es ReteFuente por defecto
+        if cuenta_limpia.startswith('2365'):
+            # Buscar en reglas para obtener el concepto
+            regla = self.reglas.get(cuenta_limpia)
+            if regla and regla.concepto_retencion:
+                return "renta", regla.concepto_retencion
+        
+        return "renta", "99"
     
     def procesar_archivo(
         self,
         file_path: Path,
         column_mapping: Optional[Dict[str, str]] = None
     ) -> Tuple[List[Dict], Dict]:
-        """
-        Procesar archivo CSV y extraer retenciones
-        """
+        """Procesar archivo CSV y extraer retenciones"""
+        
         # 1. Cargar archivo
         df = self._cargar_csv(file_path)
         logger.info(f"📄 Archivo cargado: {len(df)} registros")
@@ -219,7 +228,6 @@ class RetencionCSVProcessor:
         if not cuenta_col:
             raise ValueError("No se detectó la columna de cuenta")
         
-        # Limpiar la columna de cuenta para filtrar
         df['cuenta_limpia'] = df[cuenta_col].astype(str).apply(self._limpiar_puc)
         df_retenciones = df[df['cuenta_limpia'].str.startswith('2365')].copy()
         
@@ -253,7 +261,6 @@ class RetencionCSVProcessor:
                 if valor == 0:
                     continue
                 
-                # Validar datos
                 if not nit or nit == 'nan':
                     errores.append({
                         'fila': idx + 2,
@@ -262,23 +269,25 @@ class RetencionCSVProcessor:
                     })
                     continue
                 
+                # 🔵 DETERMINAR TIPO DE RETENCIÓN
+                tipo_retencion, concepto_dian = self._determinar_tipo_retencion(cuenta)
+                
                 # Buscar regla de mapeo
                 regla = self.reglas.get(cuenta)
-                concepto_dian = None
                 tarifa = 0
                 tope_minimo = 0
                 activo = True
+                concepto_exogena = None
                 
                 if regla:
-                    concepto_dian = regla.concepto_retencion
                     tarifa = float(regla.tarifa_retencion) if regla.tarifa_retencion else 0
                     tope_minimo = float(regla.tope_minimo) if regla.tope_minimo else 0
                     activo = regla.activo if regla.activo is not None else True
+                    concepto_exogena = regla.exogena_concept
                 else:
                     # Buscar en constants.py
                     regla_const = obtener_regla_retencion(cuenta)
                     if regla_const:
-                        concepto_dian = regla_const.get('concepto_retencion')
                         tarifa = regla_const.get('tarifa_retencion', 0)
                         tope_minimo = regla_const.get('tope_minimo', 0)
                         activo = regla_const.get('activo', True)
@@ -286,16 +295,6 @@ class RetencionCSVProcessor:
                 if not activo:
                     continue
                 
-                if not concepto_dian:
-                    errores.append({
-                        'fila': idx + 2,
-                        'error': f'Cuenta {cuenta} sin concepto de retención',
-                        'data': {'nit': nit, 'razon_social': razon_social, 'cuenta': cuenta}
-                    })
-                    continue
-                
-                # Extraer concepto contable y tarifa
-                concepto_contable = self._extraer_concepto(nombre_cuenta)
                 if tarifa == 0:
                     tarifa = self._extraer_tarifa(nombre_cuenta)
                 
@@ -305,6 +304,9 @@ class RetencionCSVProcessor:
                 # Validar tope mínimo
                 if base_gravable < tope_minimo:
                     continue
+                
+                # Extraer concepto contable
+                concepto_contable = self._extraer_concepto(nombre_cuenta)
                 
                 # Crear registro
                 retencion_data = {
@@ -320,8 +322,9 @@ class RetencionCSVProcessor:
                     'valor_retenido': round(valor, 2),
                     'cuenta_pasivo': cuenta,
                     'formato_asignado': '1003',
-                    'concepto_exogena': regla.exogena_concept if regla else None,
+                    'concepto_exogena': concepto_exogena,
                     'periodo': self._obtener_periodo(fecha),
+                    'tipo_retencion': tipo_retencion,  # 🔵 AQUÍ SE ASIGNA EL TIPO
                     'estado': 'procesado'
                 }
                 
@@ -352,7 +355,17 @@ class RetencionCSVProcessor:
             'detalles_errores': errores[:10]
         }
         
+        # Resumen por tipo
+        tipos = {}
+        for r in retenciones:
+            tipo = r.get('tipo_retencion', 'desconocido')
+            if tipo not in tipos:
+                tipos[tipo] = 0
+            tipos[tipo] += 1
+        resumen['tipos_retencion'] = tipos
+        
         logger.info(f"✅ Retenciones procesadas: {len(retenciones)}")
+        logger.info(f"   Tipos: {tipos}")
         logger.info(f"⚠️ Errores: {len(errores)}")
         
         return retenciones, resumen
@@ -372,39 +385,3 @@ class RetencionCSVProcessor:
         except Exception as e:
             logger.error(f"Error al guardar retención: {e}")
             return None
-    
-    def generar_formato_dian(
-        self,
-        retenciones: List[Dict],
-        output_path: Path,
-        formato: str = "1003"
-    ) -> Path:
-        """Generar archivo en formato DIAN 1003"""
-        if not retenciones:
-            raise ValueError("No hay retenciones para generar")
-        
-        retenciones_validas = [
-            r for r in retenciones 
-            if r.get('valor_retenido', 0) > 0
-        ]
-        
-        if not retenciones_validas:
-            raise ValueError("No hay retenciones con valor > 0")
-        
-        lineas = []
-        for r in retenciones_validas:
-            linea = (
-                f"{formato}|"
-                f"{r['nit_tercero']}|"
-                f"{r['concepto_dian']}|"
-                f"{r['base_gravable']:.2f}|"
-                f"{r['valor_retenido']:.2f}|"
-                f"{r['periodo']}"
-            )
-            lineas.append(linea)
-        
-        output_file = output_path / f"formato_{formato}_{datetime.now().strftime('%Y%m%d')}.txt"
-        with open(output_file, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(lineas))
-        
-        return output_file

@@ -1,8 +1,8 @@
-"""Fusionar migraciones de retenciones
+"""Agregar campo tipo_retencion
 
-Revision ID: e3aae226076d
-Revises: xxx_crear_tabla_retenciones, 8b0214c204c0
-Create Date: 2026-08-21 11:12:15.747398
+Revision ID: d0b16476be3b
+Revises: 0339e1a1e5e8
+Create Date: 2026-08-22 11:56:43.400392
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'e3aae226076d'
-down_revision: Union[str, Sequence[str], None] = ('xxx_crear_tabla_retenciones', '8b0214c204c0')
+revision: str = 'd0b16476be3b'
+down_revision: Union[str, Sequence[str], None] = 'xxx_crear_tabla_retenciones'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

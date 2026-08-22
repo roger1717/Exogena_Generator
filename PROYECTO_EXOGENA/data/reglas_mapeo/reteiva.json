@@ -1,0 +1,47 @@
+{
+  "tipo": "iva",
+  "nombre": "Retención en la Fuente por IVA",
+  "formato_dian": "1003",
+  "iva_porcentaje": 19,
+  "reglas": [
+    {
+      "puc_code": "236535",
+      "puc_name": "ReteIVA Servicios 15%",
+      "exogena_format": "1001",
+      "exogena_concept": "5001",
+      "exogena_concept_name": "Retenciones IVA Servicios",
+      "concepto_retencion": "11",
+      "tarifa_retencion": 0.15,
+      "tope_minimo": 0,
+      "aplica_iva": false,
+      "tipo_retencion": "iva",
+      "activo": true
+    },
+    {
+      "puc_code": "236536",
+      "puc_name": "ReteIVA Bienes 15%",
+      "exogena_format": "1001",
+      "exogena_concept": "5001",
+      "exogena_concept_name": "Retenciones IVA Bienes",
+      "concepto_retencion": "12",
+      "tarifa_retencion": 0.15,
+      "tope_minimo": 0,
+      "aplica_iva": false,
+      "tipo_retencion": "iva",
+      "activo": true
+    },
+    {
+      "puc_code": "236537",
+      "puc_name": "ReteIVA Honorarios 15%",
+      "exogena_format": "1001",
+      "exogena_concept": "5001",
+      "exogena_concept_name": "Retenciones IVA Honorarios",
+      "concepto_retencion": "13",
+      "tarifa_retencion": 0.15,
+      "tope_minimo": 0,
+      "aplica_iva": false,
+      "tipo_retencion": "iva",
+      "activo": true
+    }
+  ]
+}

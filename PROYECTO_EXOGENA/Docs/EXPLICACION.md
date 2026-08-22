@@ -121,3 +121,9 @@ Razon_Social	Insumos Industriales Ltda	Nombre del tercero
 Debito	0.0	Valor débito
 Credito	1447771.55	Valor crédito
 Concepto	Registro contable...	Descripción adicional
+
+
+Tipo	Cuentas PUC	Ejemplos
+ReteFuente	236505, 236515, 236525, 236530	Retenciones de renta
+ReteIVA	236535, 236536, 236537	Retenciones de IVA
+Exógena	413505, 417005, 421005, 130505, 136505, 220505, 233595	Cuentas sin rete

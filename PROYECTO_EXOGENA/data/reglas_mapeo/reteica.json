@@ -1,0 +1,49 @@
+{
+  "tipo": "ica",
+  "nombre": "Retención en la Fuente por ICA",
+  "formato_dian": "1003",
+  "reglas": [
+    {
+      "puc_code": "236805",
+      "puc_name": "ReteICA Actividades Comerciales",
+      "exogena_format": "1001",
+      "exogena_concept": "5003",
+      "exogena_concept_name": "Retenciones ICA Comerciales",
+      "concepto_retencion": "21",
+      "tarifa_retencion": 0.0033,
+      "tope_minimo": 0,
+      "aplica_iva": false,
+      "tipo_retencion": "ica",
+      "calcula_base_sobre": "total",
+      "activo": true
+    },
+    {
+      "puc_code": "236810",
+      "puc_name": "ReteICA Actividades de Servicios",
+      "exogena_format": "1001",
+      "exogena_concept": "5003",
+      "exogena_concept_name": "Retenciones ICA Servicios",
+      "concepto_retencion": "22",
+      "tarifa_retencion": 0.0033,
+      "tope_minimo": 0,
+      "aplica_iva": false,
+      "tipo_retencion": "ica",
+      "calcula_base_sobre": "total",
+      "activo": true
+    },
+    {
+      "puc_code": "236815",
+      "puc_name": "ReteICA Actividades Industriales",
+      "exogena_format": "1001",
+      "exogena_concept": "5003",
+      "exogena_concept_name": "Retenciones ICA Industriales",
+      "concepto_retencion": "23",
+      "tarifa_retencion": 0.0033,
+      "tope_minimo": 0,
+      "aplica_iva": false,
+      "tipo_retencion": "ica",
+      "calcula_base_sobre": "total",
+      "activo": true
+    }
+  ]
+}

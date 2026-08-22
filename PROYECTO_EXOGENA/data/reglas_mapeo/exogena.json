@@ -1,0 +1,97 @@
+{
+  "tipo": "exogena",
+  "nombre": "Reglas de Exógena (sin retención)",
+  "reglas": [
+    {
+      "puc_code": "413505",
+      "puc_name": "Venta de Mercancias / Productos",
+      "exogena_format": "1007",
+      "exogena_concept": "8001",
+      "exogena_concept_name": "Ingresos Brutos",
+      "concepto_retencion": null,
+      "tarifa_retencion": null,
+      "tope_minimo": null,
+      "aplica_iva": false,
+      "tipo_retencion": null,
+      "activo": true
+    },
+    {
+      "puc_code": "417005",
+      "puc_name": "Devoluciones en Ventas",
+      "exogena_format": "1007",
+      "exogena_concept": "8002",
+      "exogena_concept_name": "Devoluciones",
+      "concepto_retencion": null,
+      "tarifa_retencion": null,
+      "tope_minimo": null,
+      "aplica_iva": false,
+      "tipo_retencion": null,
+      "activo": true
+    },
+    {
+      "puc_code": "421005",
+      "puc_name": "Ingresos Financieros Intereses",
+      "exogena_format": "1007",
+      "exogena_concept": "8003",
+      "exogena_concept_name": "Ingresos Financieros",
+      "concepto_retencion": null,
+      "tarifa_retencion": null,
+      "tope_minimo": null,
+      "aplica_iva": false,
+      "tipo_retencion": null,
+      "activo": true
+    },
+    {
+      "puc_code": "130505",
+      "puc_name": "Clientes Nacionales",
+      "exogena_format": "1008",
+      "exogena_concept": "9001",
+      "exogena_concept_name": "Cuentas por Cobrar",
+      "concepto_retencion": null,
+      "tarifa_retencion": null,
+      "tope_minimo": null,
+      "aplica_iva": false,
+      "tipo_retencion": null,
+      "activo": true
+    },
+    {
+      "puc_code": "136505",
+      "puc_name": "Cuentas por Cobrar a Empleados",
+      "exogena_format": "1008",
+      "exogena_concept": "9001",
+      "exogena_concept_name": "Cuentas por Cobrar",
+      "concepto_retencion": null,
+      "tarifa_retencion": null,
+      "tope_minimo": null,
+      "aplica_iva": false,
+      "tipo_retencion": null,
+      "activo": true
+    },
+    {
+      "puc_code": "220505",
+      "puc_name": "Proveedores Nacionales",
+      "exogena_format": "1009",
+      "exogena_concept": "9002",
+      "exogena_concept_name": "Cuentas por Pagar",
+      "concepto_retencion": null,
+      "tarifa_retencion": null,
+      "tope_minimo": null,
+      "aplica_iva": false,
+      "tipo_retencion": null,
+      "activo": true
+    },
+    {
+      "puc_code": "233595",
+      "puc_name": "Costos y Gastos por Pagar Diversos",
+      "exogena_format": "1009",
+      "exogena_concept": "9002",
+      "exogena_concept_name": "Cuentas por Pagar",
+      "concepto_retencion": null,
+      "tarifa_retencion": null,
+      "tope_minimo": null,
+      "aplica_iva": false,
+      "tipo_retencion": null,
+      "activo": true
+    }
+  ]
+}
