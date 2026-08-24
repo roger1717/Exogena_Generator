@@ -29,7 +29,9 @@ class RetencionBase(BaseModel):
     
     formato_asignado: Optional[str] = Field(None, description="Formato DIAN asignado", max_length=10)
     concepto_exogena: Optional[str] = Field(None, description="Concepto de exógena", max_length=10)
-    
+        #Tipo de retención
+    tipo_retencion: Optional[str] = Field(None, description="Tipo de retención: renta, iva, ica",max_length=20)
+
     periodo: Optional[str] = Field(None, description="Período tributario (YYYY-MM)", max_length=7)
     estado: str = Field("procesado", description="Estado de la retención", max_length=20)
     observaciones: Optional[str] = Field(None, description="Observaciones adicionales")
@@ -53,6 +55,7 @@ class RetencionUpdate(BaseModel):
     observaciones: Optional[str] = None
     formato_asignado: Optional[str] = Field(None, max_length=10)
     concepto_exogena: Optional[str] = Field(None, max_length=10)
+    tipo_retencion: Optional[str] = Field(None, max_length=20)
 
 
 class RetencionResponse(RetencionBase):
@@ -103,3 +106,24 @@ class RetencionResumenPorPeriodo(BaseModel):
     periodo: str
     total_retenido: float
     cantidad: int
+
+class RetencionResumenPorTipo(BaseModel):
+    """Resumen de retenciones agrupadas por tipo"""
+    tipo_retencion: str
+    tipo_nombre: str
+    cantidad: int
+    total_retenido: float
+    total_base: float
+
+
+# Esquema para estadísticas completas
+class RetencionEstadisticas(BaseModel):
+    """Estadísticas completas de retenciones"""
+    total_retenciones: int
+    total_retenido: float
+    total_base: float
+    por_tipo: List[RetencionResumenPorTipo]
+    por_periodo: List[RetencionResumenPorPeriodo]
+    por_concepto: List[RetencionResumenPorConcepto]
+    ultimo_periodo: Optional[str]
+    periodos_disponibles: List[str]

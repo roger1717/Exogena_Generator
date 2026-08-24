@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'xxx_crear_tabla_retenciones'  # Reemplazar con el ID generado
+revision: str = '0339e1a1e5e8'  # Reemplazar con el ID generado
 down_revision: Union[str, None] = '002_add_retencion_fields'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
