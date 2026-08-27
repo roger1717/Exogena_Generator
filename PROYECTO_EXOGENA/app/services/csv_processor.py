@@ -182,10 +182,10 @@ class CSVProcessor:
             nombre = str(row.get('nombre_tercero', '')).strip()
             valor = float(row.get('valor', 0))
             puc = str(row.get('codigo_puc', '')).strip()
+            
+            # Limpiar punto decimal si viene como float (ej: "512010.0" -> "512010")
             if '.' in puc:
                 puc = puc.split('.')[0]
-            else:
-                puc = puc.raw
             puc = puc.strip()
 
             if not nit or nit == 'nan':
@@ -263,20 +263,14 @@ class CSVProcessor:
         }
 
     def generate_excel(self, processed_data: List[Dict], file_id: str) -> str:
-        """Genera un archivo Excel con detalle y resumen por formato."""
-    
-        
-        # Crear workbook
+        """Genera un archivo Excel con detalle y resumen por formato en outputs/exogena."""
         wb = Workbook()
         
         # --- Hoja 1: Detalle ---
         ws_detalle = wb.active
         ws_detalle.title = "Detalle"
         
-        # Convertir a DataFrame para facilidad
         df_detalle = pd.DataFrame(processed_data)
-        
-        # Columnas amigables para el contador
         column_mapping = {
             'nit_tercero': 'NIT',
             'nombre_tercero': 'Nombre Tercero',
@@ -288,70 +282,47 @@ class CSVProcessor:
         }
         df_detalle = df_detalle.rename(columns=column_mapping)
         
-        # Escribir encabezados
         for col_idx, col_name in enumerate(df_detalle.columns, 1):
             cell = ws_detalle.cell(row=1, column=col_idx, value=col_name)
             cell.font = Font(bold=True)
             cell.fill = PatternFill(start_color="D3D3D3", end_color="D3D3D3", fill_type="solid")
             cell.alignment = Alignment(horizontal='center')
         
-        # Escribir datos
         for r_idx, row in enumerate(df_detalle.itertuples(index=False), 2):
             for c_idx, value in enumerate(row, 1):
                 ws_detalle.cell(row=r_idx, column=c_idx, value=value)
         
-        # Ajustar ancho de columnas
         for col in ws_detalle.columns:
-            max_length = 0
+            max_length = max((len(str(cell.value or '')) for cell in col), default=0)
             column = col[0].column_letter
-            for cell in col:
-                try:
-                    if len(str(cell.value)) > max_length:
-                        max_length = len(str(cell.value))
-                except:
-                    pass
-            adjusted_width = min(max_length + 2, 50)
-            ws_detalle.column_dimensions[column].width = adjusted_width
+            ws_detalle.column_dimensions[column].width = min(max_length + 2, 50)
         
         # --- Hoja 2: Resumen por Formato ---
         ws_resumen = wb.create_sheet("Resumen por Formato")
+        if not df_detalle.empty and 'Formato' in df_detalle.columns and 'Concepto DIAN' in df_detalle.columns:
+            df_resumen = df_detalle.groupby(['Formato', 'Concepto DIAN'])['Valor'].sum().reset_index()
+            df_resumen['Cantidad'] = df_detalle.groupby(['Formato', 'Concepto DIAN']).size().values
+            df_resumen = df_resumen.sort_values('Formato')
+            
+            for col_idx, col_name in enumerate(df_resumen.columns, 1):
+                cell = ws_resumen.cell(row=1, column=col_idx, value=col_name)
+                cell.font = Font(bold=True)
+                cell.fill = PatternFill(start_color="D3D3D3", end_color="D3D3D3", fill_type="solid")
+                cell.alignment = Alignment(horizontal='center')
+            
+            for r_idx, row in enumerate(df_resumen.itertuples(index=False), 2):
+                for c_idx, value in enumerate(row, 1):
+                    ws_resumen.cell(row=r_idx, column=c_idx, value=value)
+            
+            for col in ws_resumen.columns:
+                max_length = max((len(str(cell.value or '')) for cell in col), default=0)
+                column = col[0].column_letter
+                ws_resumen.column_dimensions[column].width = min(max_length + 2, 30)
         
-        # Agrupar por formato y concepto
-        df_resumen = df_detalle.groupby(['Formato', 'Concepto DIAN'])['Valor'].sum().reset_index()
-        df_resumen['Cantidad'] = df_detalle.groupby(['Formato', 'Concepto DIAN']).size().values
-        
-        # Ordenar por formato
-        df_resumen = df_resumen.sort_values('Formato')
-        
-        # Escribir encabezados
-        for col_idx, col_name in enumerate(df_resumen.columns, 1):
-            cell = ws_resumen.cell(row=1, column=col_idx, value=col_name)
-            cell.font = Font(bold=True)
-            cell.fill = PatternFill(start_color="D3D3D3", end_color="D3D3D3", fill_type="solid")
-            cell.alignment = Alignment(horizontal='center')
-        
-        # Escribir datos
-        for r_idx, row in enumerate(df_resumen.itertuples(index=False), 2):
-            for c_idx, value in enumerate(row, 1):
-                ws_resumen.cell(row=r_idx, column=c_idx, value=value)
-        
-        # Ajustar ancho
-        for col in ws_resumen.columns:
-            max_length = 0
-            column = col[0].column_letter
-            for cell in col:
-                try:
-                    if len(str(cell.value)) > max_length:
-                        max_length = len(str(cell.value))
-                except:
-                    pass
-            adjusted_width = min(max_length + 2, 30)
-            ws_resumen.column_dimensions[column].width = adjusted_width
-        
-        # --- Guardar archivo ---
-        excel_dir = Path("outputs/excel")
-        excel_dir.mkdir(parents=True, exist_ok=True)
-        file_path = excel_dir / f"{file_id}_resumen.xlsx"
+        # Guardar en outputs/exogena
+        output_dir = Path("outputs/exogena")
+        output_dir.mkdir(parents=True, exist_ok=True)
+        file_path = output_dir / f"{file_id}_resumen.xlsx"
         wb.save(file_path)
         
         return str(file_path)

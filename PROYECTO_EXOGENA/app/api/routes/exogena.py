@@ -20,94 +20,77 @@ from app.schemas.exogena import CSVUploadResponse
 
 router = APIRouter(prefix="/exogena", tags=["Procesamiento Exógena"])
 
+UPLOAD_DIR = Path("uploads")
+OUTPUT_EXOGENA_DIR = Path("outputs/exogena")
+
+# Garantizar existencia de directorios al iniciar
+UPLOAD_DIR.mkdir(exist_ok=True)
+OUTPUT_EXOGENA_DIR.mkdir(parents=True, exist_ok=True)
 
 @router.post("/upload", response_model=CSVUploadResponse)
 async def upload_csv(
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
-    """
-    Sube un archivo CSV para procesamiento de información exógena.
-    
-    **¡No necesita column_mapping!** El sistema detecta automáticamente las columnas.
-    
-    El archivo debe contener al menos:
-    - Una columna con NIT/Identificación del tercero
-    - Una columna con el nombre del tercero
-    - Una columna numérica con el valor
-    - Una columna con el código PUC
-    
-    Returns:
-        CSVUploadResponse con los resultados del procesamiento
-    """
-    # 1. Validar que el archivo es CSV
-    if not file.filename.endswith('.csv'):
+    if not file.filename.lower().endswith('.csv'):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="El archivo debe ser de tipo CSV"
         )
     
-    # 2. Crear carpetas necesarias
-    upload_dir = Path("uploads")
-    upload_dir.mkdir(exist_ok=True)
-    
-    output_dir = Path("outputs")
-    output_dir.mkdir(exist_ok=True)
-    
-    # 3. Guardar el archivo temporalmente
     file_id = str(uuid.uuid4())
-    file_path = upload_dir / f"{file_id}_{file.filename}"
+    file_path = UPLOAD_DIR / f"{file_id}_{file.filename}"
     
     try:
-        # Guardar archivo
         with file_path.open("wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         
-        # 4. Procesar el archivo (sin column_mapping, detección automática)
         processor = CSVProcessor(db)
         processed_data, result = processor.process_file(str(file_path))
         
-        # 5. Guardar resultados en archivo JSON para consulta futura
-        output_file = output_dir / f"{file_id}_result.json"
-        with output_file.open("w", encoding="utf-8") as f:
-            # Convertir datetime a string para JSON
-            result_dict = result.model_dump()
-            # Asegurar que timestamp sea string
-            if 'timestamp' in result_dict and isinstance(result_dict['timestamp'], datetime):
-                result_dict['timestamp'] = result_dict['timestamp'].isoformat()
+        # 1. Generar Excel automáticamente en outputs/exogena
+        excel_path = processor.generate_excel(processed_data, file_id)
+        
+        # 2. Guardar JSON resultado en outputs/exogena
+        json_file_path = OUTPUT_EXOGENA_DIR / f"{file_id}_result.json"
+        result_dict = result.model_dump()
+        
+        if 'timestamp' in result_dict and isinstance(result_dict['timestamp'], datetime):
+            result_dict['timestamp'] = result_dict['timestamp'].isoformat()
             
+        with json_file_path.open("w", encoding="utf-8") as f:
             json.dump({
                 "file_id": file_id,
                 "filename": file.filename,
+                "excel_path": excel_path,
+                "json_path": str(json_file_path),
                 "result": result_dict,
                 "data": processed_data,
                 "mapping_used": "auto_detected"
             }, f, ensure_ascii=False, indent=2)
-        
-        # 6. Retornar respuesta
+            
         return CSVUploadResponse(
-            message="Archivo procesado exitosamente",
+            message="Archivo procesado y generado exitosamente",
             file_id=file_id,
+            json_path=str(json_file_path),
+            excel_path=excel_path,
             result=result
         )
         
     except ValueError as e:
-        # Error de validación (columnas faltantes, etc.)
-        if file_path.exists():
-            file_path.unlink()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Error en el formato del archivo: {str(e)}"
         )
-        
     except Exception as e:
-        # Error general
-        if file_path.exists():
-            file_path.unlink()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al procesar el archivo: {str(e)}"
         )
+    finally:
+        if file_path.exists():
+            file_path.unlink()
+        await file.close()
 
 
 @router.post("/analyze")
@@ -115,58 +98,41 @@ async def analyze_csv(
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
-    """
-    Analiza un archivo CSV y sugiere qué columnas usar para cada campo.
-    
-    Útil para verificar qué detectó el sistema automáticamente.
-    """
-    # Validar que el archivo es CSV
-    if not file.filename.endswith('.csv'):
+    if not file.filename.lower().endswith('.csv'):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="El archivo debe ser de tipo CSV"
         )
     
-    # Guardar archivo temporalmente
-    upload_dir = Path("uploads")
-    upload_dir.mkdir(exist_ok=True)
-    
     file_id = str(uuid.uuid4())
-    file_path = upload_dir / f"{file_id}_{file.filename}"
+    file_path = UPLOAD_DIR / f"{file_id}_{file.filename}"
     
     try:
         with file_path.open("wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         
-        # Analizar el archivo
         processor = CSVProcessor(db)
         suggestions = processor.get_column_suggestions(str(file_path))
-        
-        # Limpiar archivo temporal
-        file_path.unlink()
         
         return {
             "file_id": file_id,
             "filename": file.filename,
             "suggestions": suggestions
         }
-        
     except Exception as e:
-        if file_path.exists():
-            file_path.unlink()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al analizar el archivo: {str(e)}"
         )
-
+    finally:
+        # Garantiza que el archivo temporal siempre se elimine
+        if file_path.exists():
+            file_path.unlink()
+        await file.close()
 
 @router.get("/results/{file_id}")
 async def get_processing_results(file_id: str):
-    """
-    Obtiene los resultados de procesamiento de un archivo específico.
-    """
-    output_dir = Path("outputs")
-    output_file = output_dir / f"{file_id}_result.json"
+    output_file = OUTPUT_EXOGENA_DIR / f"{file_id}_result.json"
     
     if not output_file.exists():
         raise HTTPException(
@@ -211,26 +177,14 @@ async def download_sample_csv():
     )
 
 @router.get("/download-excel/{file_id}")
-async def download_excel(file_id: str, db: Session = Depends(get_db)):
-    """
-    Descarga un archivo Excel con el detalle y resumen de los datos procesados.
-    """
-    # Buscar el resultado guardado
-    output_dir = Path("outputs")
-    result_file = output_dir / f"{file_id}_result.json"
-    if not result_file.exists():
-        raise HTTPException(status_code=404, detail="Resultados no encontrados")
+async def download_excel(file_id: str):
+    excel_path = OUTPUT_EXOGENA_DIR / f"{file_id}_resumen.xlsx"
     
-    with result_file.open("r", encoding="utf-8") as f:
-        data = json.load(f)
-    
-    processed_data = data.get("data", [])
-    if not processed_data:
-        raise HTTPException(status_code=404, detail="No hay datos para generar el Excel")
-    
-    # Generar Excel
-    processor = CSVProcessor(db)
-    excel_path = processor.generate_excel(processed_data, file_id)
+    if not excel_path.exists():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Archivo Excel no encontrado. Verifica si el archivo fue procesado."
+        )
     
     return FileResponse(
         path=excel_path,
@@ -238,15 +192,10 @@ async def download_excel(file_id: str, db: Session = Depends(get_db)):
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
+
 @router.get("/download-xml/{file_id}")
 async def download_xml(file_id: str, format_code: str = "1001", db: Session = Depends(get_db)):
-    """
-    Descarga un archivo XML para la DIAN en el formato especificado.
-    Por defecto genera el formato 1001.
-    """
-    # Buscar el resultado guardado
-    output_dir = Path("outputs")
-    result_file = output_dir / f"{file_id}_result.json"
+    result_file = OUTPUT_EXOGENA_DIR / f"{file_id}_result.json"
     if not result_file.exists():
         raise HTTPException(status_code=404, detail="Resultados no encontrados")
     
@@ -257,7 +206,6 @@ async def download_xml(file_id: str, format_code: str = "1001", db: Session = De
     if not processed_data:
         raise HTTPException(status_code=404, detail="No hay datos para generar el XML")
     
-    # Generar XML
     processor = CSVProcessor(db)
     xml_path = processor.generate_xml(processed_data, file_id, format_code)
     

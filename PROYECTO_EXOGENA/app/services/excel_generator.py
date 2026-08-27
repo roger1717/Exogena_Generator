@@ -82,7 +82,7 @@ class ExcelGenerator:
         
         for col_idx, col_name in enumerate(df_detalle.columns, 1):
             cell = ws_detalle.cell(row=1, column=col_idx, value=col_name)
-            cell.font = Font(bold=True, color="FFFFFF")
+            cell.font = Font(bold=True, color="000000")
             cell.fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
             cell.alignment = Alignment(horizontal='center')
         

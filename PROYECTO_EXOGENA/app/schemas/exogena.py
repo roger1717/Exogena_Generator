@@ -5,14 +5,13 @@
 #           y respuestas de la API.
 # ============================================================================
 
+# app/schemas/exogena.py
+
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 
 class CSVRow(BaseModel):
-    """
-    Representa una fila del archivo CSV procesado.
-    """
     nit_tercero: str = Field(..., description="NIT del tercero")
     nombre_tercero: str = Field(..., description="Nombre del tercero")
     valor: float = Field(..., description="Valor de la transacción")
@@ -22,9 +21,6 @@ class CSVRow(BaseModel):
     estado: str = Field("pendiente", description="Estado del registro: pendiente, procesado, error")
 
 class ProcessingResult(BaseModel):
-    """
-    Resultado del procesamiento de un archivo CSV.
-    """
     filename: str = Field(..., description="Nombre del archivo procesado")
     total_rows: int = Field(..., description="Total de filas procesadas")
     processed_rows: int = Field(..., description="Filas procesadas exitosamente")
@@ -34,19 +30,16 @@ class ProcessingResult(BaseModel):
     
     model_config = ConfigDict(
         from_attributes=True,
-        # Esto asegura que datetime se serialice como string ISO
         json_encoders={
             datetime: lambda v: v.isoformat()
         }
     )
 
-
 class CSVUploadResponse(BaseModel):
-    """
-    Respuesta al subir un archivo CSV.
-    """
     message: str
     file_id: str
+    json_path: str = Field(..., description="Ruta relativa del archivo JSON generado")
+    excel_path: str = Field(..., description="Ruta relativa del archivo Excel generado")
     result: ProcessingResult
     
     model_config = ConfigDict(
