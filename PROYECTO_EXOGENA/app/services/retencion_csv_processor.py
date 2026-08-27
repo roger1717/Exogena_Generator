@@ -181,28 +181,50 @@ class RetencionCSVProcessor:
     
     def _determinar_tipo_retencion(self, cuenta: str) -> Tuple[str, str]:
         """
-        Determinar el tipo de retención según la cuenta PUC
-        
+        Determinar el tipo de retención según la cuenta PUC.
+        Primero busca en las reglas cargadas desde la BD.
+        Si no encuentra, usa fallbacks por prefijo.
+    
         Returns:
-            Tuple: (tipo_retencion, concepto_dian)
+        Tuple: (tipo_retencion, concepto_dian)
         """
         cuenta_limpia = self._limpiar_puc(cuenta)
-        
-        # Verificar si es ReteIVA
+    
+    # 1. BUSCAR EN REGLAS DE LA BD (FUENTE DE VERDAD)
+        regla = self.reglas.get(cuenta_limpia)
+        if regla:
+            if regla.tipo_retencion and regla.concepto_retencion:
+                    return regla.tipo_retencion, regla.concepto_retencion
+        # Si la regla tiene tipo pero no concepto, asignar uno por defecto según el tipo
+        if regla.tipo_retencion:
+            # Para ICA, asignar concepto 22 si no tiene
+            if regla.tipo_retencion == 'ica':
+                return 'ica', '22'
+            # Para IVA, asignar 11 si no tiene
+            if regla.tipo_retencion == 'iva':
+                return 'iva', '11'
+            # Para renta, asignar 99
+            if regla.tipo_retencion == 'renta':
+                return 'renta', '99'
+    
+    # 2. FALLBACK: Usar diccionarios fijos (por si no hay regla en BD)
+    # Verificar si es ReteIVA
         if cuenta_limpia in self.CUENTAS_IVA:
             return "iva", self.CUENTAS_IVA[cuenta_limpia]
-        
-        # Verificar si es ReteICA
+    
+    # Verificar si es ReteICA
         if cuenta_limpia in self.CUENTAS_ICA:
             return "ica", self.CUENTAS_ICA[cuenta_limpia]
-        
-        # Si es cuenta 2365xx, es ReteFuente por defecto
+    
+    # Si es cuenta 2365xx, es ReteFuente por defecto
         if cuenta_limpia.startswith('2365'):
-            # Buscar en reglas para obtener el concepto
-            regla = self.reglas.get(cuenta_limpia)
-            if regla and regla.concepto_retencion:
-                return "renta", regla.concepto_retencion
-        
+        # Buscar en reglas nuevamente (por si falló el primer intento)
+            regla2 = self.reglas.get(cuenta_limpia)
+            if regla2 and regla2.concepto_retencion:
+                return "renta", regla2.concepto_retencion
+            return "renta", "99"
+    
+    # Si nada de lo anterior, asumir renta
         return "renta", "99"
     
     def procesar_archivo(
@@ -229,8 +251,7 @@ class RetencionCSVProcessor:
             raise ValueError("No se detectó la columna de cuenta")
         
         df['cuenta_limpia'] = df[cuenta_col].astype(str).apply(self._limpiar_puc)
-        df_retenciones = df[df['cuenta_limpia'].str.startswith('2365')].copy()
-        
+        df_retenciones = df[df['cuenta_limpia'].str.startswith(('2365', '2368'))].copy()
         logger.info(f"🔍 Retenciones encontradas: {len(df_retenciones)}")
         
         if len(df_retenciones) == 0:

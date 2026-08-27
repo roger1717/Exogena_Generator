@@ -1,4 +1,5 @@
-
+#!/usr/bin/env python
+# app/services/retencion_service.py
 """
 Servicio de Retenciones en la Fuente
 
@@ -14,6 +15,7 @@ from typing import List, Dict, Optional, Any
 from datetime import datetime
 from decimal import Decimal
 from sqlalchemy.orm import Session
+from app.services.excel_generator import ExcelGenerator
 
 from app.core.constants import (
     FORMATO_EXOGENA_A_RETENCION,
@@ -181,6 +183,7 @@ class RetencionService:
                     'tarifa': tarifa,
                     'valor_retenido': float(valor_retenido),
                     'cuenta_pasivo': cuenta_pasivo,
+                    'tipo_retencion': regla.get('tipo_retencion', 'renta'),  # <-- LÍNEA AGREGADA
                     'formato_asignado': FORMATO_EXOGENA_A_RETENCION.get(
                         regla.get('exogena_format', '1001'), '1003'
                     ),
@@ -285,36 +288,22 @@ class RetencionService:
     def generar_reporte_excel(
         self,
         retenciones: List[Dict],
-        output_path: Path
-    ) -> Path:
+        output_path: Path,
+        separar_por_tipo: bool = True
+    ) -> Dict[str, Path] | Path:
         """
-        Generar reporte de retenciones en Excel
-        
-        Args:
-            retenciones: Lista de retenciones
-            output_path: Ruta de salida
-        
-        Returns:
-            Path del archivo generado
+        Generar reportes en Excel usando ExcelGenerator.
+        Si separar_por_tipo=True, genera 3 archivos (renta, iva, ica).
         """
         if not retenciones:
             raise ValueError("No hay retenciones para reportar")
+
+        excel_gen = ExcelGenerator(output_dir=output_path)
         
-        df = pd.DataFrame(retenciones)
+        if separar_por_tipo:
+            return excel_gen.generar_reporte_por_tipo(retenciones)
         
-        # Reordenar columnas
-        columnas = [
-            'fecha', 'comprobante', 'nit_tercero', 'nombre_tercero',
-            'concepto_contable', 'concepto_dian', 'base_gravable',
-            'tarifa', 'valor_retenido', 'cuenta_pasivo', 'periodo', 'estado'
-        ]
-        df = df[[c for c in columnas if c in df.columns]]
-        
-        # Guardar
-        output_file = output_path / f"reporte_retenciones_{datetime.now().strftime('%Y%m%d')}.xlsx"
-        df.to_excel(output_file, index=False, sheet_name='Retenciones')
-        
-        return output_file
+        return excel_gen.generar_reporte_retenciones(retenciones)
     
     def obtener_resumen(self, retenciones: List[Dict]) -> Dict:
         """

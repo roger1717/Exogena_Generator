@@ -9,3 +9,7 @@ poetry run python -c "import pandas; print('✅ OK')"
 
 # 4. Iniciar
 poetry run python run.py
+
+python scripts/unificar_reglas.py
+python scripts/generar_constants.py
+python scripts/cargar_reglas.py
