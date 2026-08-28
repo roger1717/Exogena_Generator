@@ -11,6 +11,7 @@ from fastapi.responses import JSONResponse
 
 from app.core.config import settings
 from app.api.routes import mapping,exogena,retencion
+from app.api.routes import renta
 
 # Crear la aplicación FastAPI
 app = FastAPI(
@@ -34,6 +35,7 @@ app.add_middleware(
 app.include_router(mapping.router)
 app.include_router(exogena.router)
 app.include_router(retencion.router)
+app.include_router(renta.router)
 
 @app.get("/")
 async def root():

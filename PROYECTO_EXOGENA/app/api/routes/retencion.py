@@ -117,7 +117,13 @@ async def procesar_retenciones(
                     archivos_generados['excel'] = {tipo: str(path) for tipo, path in archivos_excel.items()}
                 except Exception as e:
                      archivos_generados['error_excel'] = str(e)
-                
+
+                try:
+                    excel_unificado = excel_gen.generar_reporte_unificado(retenciones, periodo)
+                    archivos_generados['excel_unificado'] = str(excel_unificado)
+                except Exception as e:
+                    archivos_generados['error_excel_unificado'] = str(e)
+                                
                 # Generar XML
                 try:
                     xml_gen = XMLGenerator()
@@ -168,6 +174,13 @@ async def procesar_retenciones(
                     archivos_generados['excel'] = {tipo: str(path) for tipo, path in archivos_excel.items()}
                 except Exception as e:
                     archivos_generados['error_excel'] = str(e)
+
+                # Generar Excel Unificado (Certificado de Retenciones)
+                try:
+                    excel_unificado = excel_gen.generar_reporte_unificado(retenciones, periodo)
+                    archivos_generados['excel_unificado'] = str(excel_unificado)
+                except Exception as e:
+                    archivos_generados['error_excel_unificado'] = str(e)
 
 # 3. Generar XML (separados por tipo)
                 try:

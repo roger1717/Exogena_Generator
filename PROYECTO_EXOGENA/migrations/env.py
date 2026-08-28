@@ -20,7 +20,7 @@ from app.core.database import Base
 from app.core.config import settings
 
 # Importar todos los modelos
-from app.models import MappingRule
+from app.models import MappingRule, retencion, renta
 
 # Configurar logging
 config = context.config

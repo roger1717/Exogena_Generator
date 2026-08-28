@@ -1,0 +1,7 @@
+"Tipo;Identificador;Descripcion;Fecha_Adquisicion;Valor_Compra;Depreciacion_Acumulada;Valor_Neto;Avaluo_Comercial;Impuesto_Pagado;Modelo;Capacidad"
+"Vehículo;ABC123;Camion articulado Volvo FH;2020-03-15;350000000;105000000;245000000;310000000;2150000;2020;40 ton"
+"Vehículo;DEF456;Tractocamion Kenworth T880;2021-07-20;420000000;84000000;336000000;390000000;1850000;2021;45 ton"
+"Vehículo;GHI789;Remolque plataforma;2020-11-10;120000000;36000000;84000000;100000000;800000;2020;25 ton"
+"Vehículo;JKL012;Camion reparto Isuzu NPR;2022-01-05;180000000;27000000;153000000;165000000;1200000;2022;8 ton"
+"Vehículo;MNO345;Furgoneta Mercedes Sprinter;2023-06-12;95000000;9500000;85500000;90000000;750000;2023;3.5 ton"
+"Inmueble;CL 45 # 20-30;Bodega zona industrial;2019-09-01;600000000;120000000;480000000;550000000;3500000;;;"
