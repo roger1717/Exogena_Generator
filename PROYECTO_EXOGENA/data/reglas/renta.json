@@ -14,7 +14,8 @@
       "tope_minimo": 0,
       "aplica_iva": false,
       "tipo_retencion": "renta",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "retencion"
     },
     {
       "puc_code": "236515",
@@ -23,11 +24,12 @@
       "exogena_concept": "5024",
       "exogena_concept_name": "Retenciones Honorarios",
       "concepto_retencion": "03",
-      "tarifa_retencion": 0.10,
+      "tarifa_retencion": 0.1,
       "tope_minimo": 100000,
       "aplica_iva": true,
       "tipo_retencion": "renta",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "retencion"
     },
     {
       "puc_code": "236525",
@@ -40,7 +42,8 @@
       "tope_minimo": 100000,
       "aplica_iva": true,
       "tipo_retencion": "renta",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "retencion"
     },
     {
       "puc_code": "512010",
@@ -53,7 +56,8 @@
       "tope_minimo": 0,
       "aplica_iva": false,
       "tipo_retencion": "renta",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "gasto"
     },
     {
       "puc_code": "511005",
@@ -62,11 +66,12 @@
       "exogena_concept": "5002",
       "exogena_concept_name": "Honorarios",
       "concepto_retencion": "03",
-      "tarifa_retencion": 0.10,
+      "tarifa_retencion": 0.1,
       "tope_minimo": 100000,
       "aplica_iva": true,
       "tipo_retencion": "renta",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "gasto"
     },
     {
       "puc_code": "511010",
@@ -75,11 +80,12 @@
       "exogena_concept": "5002",
       "exogena_concept_name": "Honorarios",
       "concepto_retencion": "03",
-      "tarifa_retencion": 0.10,
+      "tarifa_retencion": 0.1,
       "tope_minimo": 100000,
       "aplica_iva": true,
       "tipo_retencion": "renta",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "gasto"
     },
     {
       "puc_code": "513505",
@@ -92,7 +98,8 @@
       "tope_minimo": 100000,
       "aplica_iva": true,
       "tipo_retencion": "renta",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "gasto"
     },
     {
       "puc_code": "513550",
@@ -105,7 +112,8 @@
       "tope_minimo": 100000,
       "aplica_iva": false,
       "tipo_retencion": "renta",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "gasto"
     },
     {
       "puc_code": "513535",
@@ -118,7 +126,8 @@
       "tope_minimo": 100000,
       "aplica_iva": true,
       "tipo_retencion": "renta",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "gasto"
     },
     {
       "puc_code": "513005",
@@ -131,7 +140,8 @@
       "tope_minimo": 100000,
       "aplica_iva": true,
       "tipo_retencion": "renta",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "gasto"
     },
     {
       "puc_code": "519530",
@@ -144,7 +154,8 @@
       "tope_minimo": 100000,
       "aplica_iva": true,
       "tipo_retencion": "renta",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "gasto"
     },
     {
       "puc_code": "519525",
@@ -157,7 +168,8 @@
       "tope_minimo": 100000,
       "aplica_iva": true,
       "tipo_retencion": "renta",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "gasto"
     },
     {
       "puc_code": "515305",
@@ -166,11 +178,12 @@
       "exogena_concept": "5010",
       "exogena_concept_name": "Gastos Financieros",
       "concepto_retencion": "09",
-      "tarifa_retencion": 0.10,
+      "tarifa_retencion": 0.1,
       "tope_minimo": 100000,
       "aplica_iva": true,
       "tipo_retencion": "renta",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "gasto"
     },
     {
       "puc_code": "236505",
@@ -183,7 +196,8 @@
       "tope_minimo": 100000,
       "aplica_iva": true,
       "tipo_retencion": "renta",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "retencion"
     }
   ]
 }

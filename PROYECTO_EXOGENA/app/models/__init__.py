@@ -6,5 +6,13 @@
 # ============================================================================
 
 from app.models.mapping_rule import MappingRule
-
-__all__ = ["MappingRule"]
+from app.models.retencion import Retencion
+from app.models.renta import (
+    Cliente, Proveedor, GastoOperativo, Nomina,
+    ActivoFijo, Deuda, CuentaBancaria, Inversion, DeclaracionAnterior
+)
+__all__ = [
+    "MappingRule", "Retencion",
+    "Cliente", "Proveedor", "GastoOperativo", "Nomina",
+    "ActivoFijo", "Deuda", "CuentaBancaria", "Inversion", "DeclaracionAnterior"
+]

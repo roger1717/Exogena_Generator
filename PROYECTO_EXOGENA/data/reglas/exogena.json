@@ -13,7 +13,8 @@
       "tope_minimo": null,
       "aplica_iva": false,
       "tipo_retencion": null,
-      "activo": true
+      "activo": true,
+      "tipo_regla": "exogena"
     },
     {
       "puc_code": "417005",
@@ -26,7 +27,8 @@
       "tope_minimo": null,
       "aplica_iva": false,
       "tipo_retencion": null,
-      "activo": true
+      "activo": true,
+      "tipo_regla": "exogena"
     },
     {
       "puc_code": "421005",
@@ -39,7 +41,8 @@
       "tope_minimo": null,
       "aplica_iva": false,
       "tipo_retencion": null,
-      "activo": true
+      "activo": true,
+      "tipo_regla": "exogena"
     },
     {
       "puc_code": "130505",
@@ -52,7 +55,8 @@
       "tope_minimo": null,
       "aplica_iva": false,
       "tipo_retencion": null,
-      "activo": true
+      "activo": true,
+      "tipo_regla": "exogena"
     },
     {
       "puc_code": "136505",
@@ -65,7 +69,8 @@
       "tope_minimo": null,
       "aplica_iva": false,
       "tipo_retencion": null,
-      "activo": true
+      "activo": true,
+      "tipo_regla": "exogena"
     },
     {
       "puc_code": "220505",
@@ -78,7 +83,8 @@
       "tope_minimo": null,
       "aplica_iva": false,
       "tipo_retencion": null,
-      "activo": true
+      "activo": true,
+      "tipo_regla": "exogena"
     },
     {
       "puc_code": "233595",
@@ -91,7 +97,8 @@
       "tope_minimo": null,
       "aplica_iva": false,
       "tipo_retencion": null,
-      "activo": true
+      "activo": true,
+      "tipo_regla": "exogena"
     }
   ]
 }

@@ -1,4 +1,3 @@
-
 {
   "tipo": "ica",
   "nombre": "Retención en la Fuente por ICA",
@@ -16,7 +15,8 @@
       "aplica_iva": false,
       "tipo_retencion": "ica",
       "calcula_base_sobre": "total",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "retencion"
     },
     {
       "puc_code": "236806",
@@ -30,7 +30,8 @@
       "aplica_iva": false,
       "tipo_retencion": "ica",
       "calcula_base_sobre": "total",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "retencion"
     },
     {
       "puc_code": "236807",
@@ -44,7 +45,8 @@
       "aplica_iva": false,
       "tipo_retencion": "ica",
       "calcula_base_sobre": "total",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "retencion"
     },
     {
       "id": "ICA_ALION",
@@ -61,7 +63,8 @@
       "aplica_iva": false,
       "tipo_retencion": "ica",
       "calcula_base_sobre": "total",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "retencion"
     },
     {
       "id": "ICA_HOLCIM",
@@ -78,7 +81,8 @@
       "aplica_iva": false,
       "tipo_retencion": "ica",
       "calcula_base_sobre": "total",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "retencion"
     },
     {
       "id": "ICA_INCAUCA",
@@ -95,7 +99,8 @@
       "aplica_iva": false,
       "tipo_retencion": "ica",
       "calcula_base_sobre": "total",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "retencion"
     },
     {
       "id": "ICA_LACTALIS_CHIA",
@@ -112,7 +117,8 @@
       "aplica_iva": false,
       "tipo_retencion": "ica",
       "calcula_base_sobre": "total",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "retencion"
     },
     {
       "id": "ICA_LACTALIS_MED",
@@ -129,7 +135,8 @@
       "aplica_iva": false,
       "tipo_retencion": "ica",
       "calcula_base_sobre": "total",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "retencion"
     },
     {
       "id": "ICA_ACERIAS",
@@ -146,7 +153,8 @@
       "aplica_iva": false,
       "tipo_retencion": "ica",
       "calcula_base_sobre": "total",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "retencion"
     },
     {
       "id": "ICA_CEMEX",
@@ -163,7 +171,8 @@
       "aplica_iva": false,
       "tipo_retencion": "ica",
       "calcula_base_sobre": "total",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "retencion"
     },
     {
       "id": "ICA_CEMEX_IBAGUE",
@@ -180,7 +189,8 @@
       "aplica_iva": false,
       "tipo_retencion": "ica",
       "calcula_base_sobre": "total",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "retencion"
     },
     {
       "id": "ICA_CEMEX_MACEO",
@@ -197,7 +207,8 @@
       "aplica_iva": false,
       "tipo_retencion": "ica",
       "calcula_base_sobre": "total",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "retencion"
     },
     {
       "id": "ICA_DUITAMA",
@@ -214,7 +225,8 @@
       "aplica_iva": false,
       "tipo_retencion": "ica",
       "calcula_base_sobre": "total",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "retencion"
     }
   ]
 }

@@ -15,7 +15,8 @@
       "tope_minimo": 0,
       "aplica_iva": false,
       "tipo_retencion": "iva",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "retencion"
     },
     {
       "puc_code": "236536",
@@ -28,7 +29,8 @@
       "tope_minimo": 0,
       "aplica_iva": false,
       "tipo_retencion": "iva",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "retencion"
     },
     {
       "puc_code": "236537",
@@ -41,7 +43,8 @@
       "tope_minimo": 0,
       "aplica_iva": false,
       "tipo_retencion": "iva",
-      "activo": true
+      "activo": true,
+      "tipo_regla": "retencion"
     }
   ]
 }

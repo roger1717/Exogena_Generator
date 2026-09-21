@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+# C:\INSPECCION\PROYECTS\PROYECTO_CONTADURIA\PROYECTO_EXOGENA\scripts\unificar_reglas.py
 """
 Unificar todas las reglas de mapeo en un solo archivo
 
